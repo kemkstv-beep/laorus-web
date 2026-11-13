@@ -1872,7 +1872,7 @@ function exportDate(){try{return new Date().toLocaleDateString("lo-LA",{year:"nu
 function favText(rows){var out=["LaoRus — ⭐ ຄຳສັບທີ່ບັນທຶກ","ພາສາລັດເຊຍສຳລັບຄົນລາວ","ຈຳນວນ: "+rows.length+" ຄຳ · ວັນທີ: "+exportDate(),"═".repeat(42),""];rows.forEach(function(p,i){var e=favExample(p);out.push(String(i+1).padStart(2,"0")+". "+(p[0]||""),"    ຄຳອ່ານ: "+(p[1]||""),"    ຄຳແປລາວ: "+(p[2]||""),"    ຕົວຢ່າງ (RU): "+(e.ru||"ບໍ່ມີຕົວຢ່າງໃນແຫຼ່ງຂໍ້ມູນ"),"    ຕົວຢ່າງ (LO): "+(e.lo||""),"    ສຽງ: ເປີດ HTML export ເພື່ອກົດຟັງ","")});out.push("═".repeat(42),"LaoRus · ພິມເພື່ອຮຽນຕໍ່");return out.join("\n")}
 function favPrintBody(rows){function speaker(text,label){if(!text)return "";return `<button type="button" class="speak" data-say="${htmlEsc(text)}" onclick="try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(this.getAttribute('data-say')||'');u.lang='ru-RU';speechSynthesis.speak(u)}catch(e){}">🔊 ${label}</button>`}return `<header class="print-head"><div class="brand-mark">LR</div><div><h1>⭐ ຄຳສັບທີ່ບັນທຶກ</h1><p>LaoRus · ພາສາລັດເຊຍສຳລັບຄົນລາວ</p></div></header><div class="print-meta">ຈຳນວນ: <b>${rows.length} ຄຳ</b> · ວັນທີ: ${htmlEsc(exportDate())}</div><section class="word-list">${rows.map(function(p,i){var e=favExample(p);return `<article class="word"><div class="num">${String(i+1).padStart(2,"0")}</div><div class="word-main"><div class="ru">${htmlEsc(p[0]||"")}</div><div class="pr">${htmlEsc(p[1]||"")}</div><div class="lo">${htmlEsc(p[2]||"")}</div>${speaker(p[0],"ຟັງຄຳ")}${e.ru?`<div class="example"><b>ຕົວຢ່າງ:</b> <span class="exr">${htmlEsc(e.ru)}</span>${e.lo?`<br><span class="exl">${htmlEsc(e.lo)}</span>`:""}</div>${speaker(e.ru,"ຟັງຕົວຢ່າງ")}`:`<div class="example missing">ບໍ່ມີຕົວຢ່າງສຳລັບຄຳນີ້ໃນແຫຼ່ງຂໍ້ມູນ</div>`}</div></article>`}).join("")}</section><footer>ສ້າງຈາກ LaoRus · ຮຽນຮູ້ບໍ່ຢຸດຢັ້ງ</footer>`}
 function favHtml(rows){return `<!doctype html><html lang="lo"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LaoRus — ຄຳສັບທີ່ບັນທຶກ</title><style>@page{size:A4;margin:13mm}*{box-sizing:border-box}body{font-family:Arial,"Noto Sans Lao",sans-serif;max-width:820px;margin:0 auto;padding:28px 24px;color:#17243d;background:#fff}.print-head{display:flex;align-items:center;gap:12px;border-bottom:3px solid #2a56a5;padding-bottom:13px}.brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:#2a56a5;color:white;font:bold 16px Arial}.print-head h1{margin:0;font-size:25px;color:#183c79}.print-head p{margin:3px 0 0;color:#65728a;font-size:13px}.print-meta{margin:13px 0;padding:8px 11px;border-radius:8px;background:#f1f5fb;color:#52627b;font-size:13px}.word-list{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}.word{display:flex;gap:9px;min-height:78px;padding:10px 11px;border:1px solid #d6e0ef;border-radius:10px;background:#fbfdff;break-inside:avoid}.num{flex:0 0 25px;color:#7290bd;font-weight:bold;font-size:12px;padding-top:2px}.word-main{min-width:0}.ru{font:700 18px Georgia,serif;color:#24549d;line-height:1.25}.pr{color:#65728a;font-size:12px;margin:4px 0}.lo{font-size:15px;line-height:1.35}.example{margin-top:8px;padding-top:7px;border-top:1px dashed #d6e0ef;font-size:13px;line-height:1.45;color:#34445e}.example .exr{font-weight:600;color:#24549d}.example .exl{color:#65728a}.example.missing{color:#65728a}.speak{display:inline-flex;align-items:center;gap:4px;margin:5px 5px 0 0;padding:4px 8px;border:1px solid #b9c9e3;border-radius:8px;background:#f1f5fb;color:#24549d;font:inherit;cursor:pointer}footer{margin-top:18px;padding-top:9px;border-top:1px solid #d6e0ef;color:#7b8799;font-size:11px}@media(max-width:650px){body{padding:18px 13px}.word-list{grid-template-columns:1fr}.print-head h1{font-size:21px}}</style></head><body>${favPrintBody(rows)}
-</body></html>`}
+`}
 function printFavs(rows){var old=document.getElementById("fav-print-sheet");if(old)old.remove();var sheet=document.createElement("div");sheet.id="fav-print-sheet";sheet.innerHTML=favPrintBody(rows);document.body.appendChild(sheet);window.print();setTimeout(function(){sheet.remove()},800)}
 var tabs=document.getElementById("tabs"),list=document.getElementById("list"),quiz=document.getElementById("quiz"),cur=RND;
 var csheet=document.getElementById("catsheet");
@@ -7482,3 +7482,179 @@ exBox=function(p){
  } catch (e) { console.error("OpenRussian adverb extension failed", e); }
 })();
 </script>
+
+<!-- Thai language completion patch: Russian → Thai UI, vocabulary, examples and categories -->
+<script id="laorus-thai-language-completion">
+(function(){
+  'use strict';
+  var LANG_KEY='laorus:langPair:v1', CACHE_KEY='laorus:thaiUiCache:v1', cache={};
+  try{cache=JSON.parse(localStorage.getItem(CACHE_KEY)||'{}')||{};}catch(e){cache={};}
+  var running=false, queued=false, observer, laoRe=/[\u0E80-\u0EFF]/, cyrillicRe=/[\u0400-\u04FF]/;
+  var fallback={'ລາວ':'ภาษาลาว','ພາສາລາວ':'ภาษาลาว','ພາສາ':'ภาษา','ຮຽນ':'เรียน','ຄຳສັບ':'คำศัพท์','ຄຳແປ':'คำแปล','ຕົວຢ່າງ':'ตัวอย่าง','ຕົວຢ່າງປະໂຫຍກ':'ตัวอย่างประโยค','ອ່ານ':'อ่าน','ຟັງ':'ฟัง','ສຽງ':'เสียง','ບັນທຶກ':'บันทึก','ຄົ້ນຫາ':'ค้นหา','ສຸ່ມ':'สุ่ม','ຄຳໃໝ່':'คำใหม่','ຄຳປະຈຳວັນ':'คำประจำวัน','ທັງໝົດ':'ทั้งหมด','ກັບ':'กลับ','ປິດ':'ปิด','ເລືອກ':'เลือก','ພາສາຕົ້ນທາງ':'ภาษาต้นทาง','ພາສາປາຍທາງ':'ภาษาปลายทาง','ປ່ຽນພາສາ':'เปลี่ยนภาษา','ນຳໃຊ້':'นำไปใช้','ຣີເຊັດ':'รีเซ็ต','ແປພາສາ':'แปลภาษา','ຜົນການແປ':'ผลการแปล','ກຳລັງແປ':'กำลังแปล','ສຳເລັດ':'สำเร็จ','ບໍ່ພົບ':'ไม่พบ','ກະລຸນາ':'กรุณา','ຂອບໃຈ':'ขอบคุณ','ສະບາຍດີ':'สวัสดี','ບໍ່ເປັນຫຍັງ':'ไม่เป็นไร','ແລະ':'และ','ຫຼື':'หรือ','ດີ':'ดี','ບໍ່ດີ':'ไม่ดี','ໃຊ້':'ใช้','ຄວາມໝາຍ':'ความหมาย','ໝາຍເຫດ':'หมายเหตุ','ຕິດຕາມ':'ติดตาม','ເວັບໄຊ':'เว็บไซต์','ຟຣີ':'ฟรี'};
+  function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify(cache));}catch(e){}}
+  async function translateText(text){
+    text=String(text||'');var key=text.trim();if(!key||!laoRe.test(key))return text;
+    if(cache[key])return cache[key]; if(fallback[key]){cache[key]=fallback[key];return fallback[key];}
+    try{var u='https://translate.googleapis.com/translate_a/single?client=gtx&sl=lo&tl=th&dt=t&q='+encodeURIComponent(key),r=await fetch(u);if(r.ok){var j=await r.json(),out=(j[0]||[]).map(function(x){return x[0]||'';}).join('').trim();if(out){cache[key]=out;return out;}}}catch(e){}
+    var parts=key.split(/(\s+)/),changed=false;parts.forEach(function(x,i){if(laoRe.test(x)&&fallback[x]){parts[i]=fallback[x];changed=true;}});return changed?parts.join(''):text;
+  }
+  function shouldSkip(n){var p=n.parentElement;if(!p)return true;if(/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|INPUT|SELECT|OPTION)$/i.test(p.tagName))return true;if(p.closest('#laorus-thai-picker,[contenteditable="true"]'))return true;if(!String(n.nodeValue||'').trim()||!laoRe.test(n.nodeValue)||cyrillicRe.test(n.nodeValue))return true;return false;}
+  async function translateVisible(){
+    if(running){queued=true;return;}running=true;var nodes=[],w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);while(w.nextNode()){if(!shouldSkip(w.currentNode))nodes.push(w.currentNode);} 
+    for(var i=0;i<Math.min(nodes.length,180);i++){var n=nodes[i],old=n.nodeValue;if(!shouldSkip(n))continue;var out=await translateText(old);if(out&&out!==old)n.nodeValue=out;}
+    saveCache();running=false;if(queued){queued=false;setTimeout(translateVisible,120);}
+  }
+  function applyThaiPair(){
+    try{localStorage.setItem(LANG_KEY,JSON.stringify({source:'ru',target:'th'}));}catch(e){}
+    if(window.LaoRusLang&&typeof window.LaoRusLang.setLang==='function'){var st=window.LaoRusLang.LangState;if(!st||st.source!=='ru'||st.target!=='th')window.LaoRusLang.setLang('ru','th');}
+    document.documentElement.lang='th';document.title='LaoRus | เรียนภาษารัสเซียเป็นภาษาไทย';
+    var m=document.querySelector('meta[name="description"]');if(m)m.setAttribute('content','เรียนคำศัพท์และบทสนทนาภาษารัสเซีย พร้อมคำอ่าน เสียงอ่าน คำแปลภาษาไทย และแบบทดสอบ');
+    setTimeout(translateVisible,80);setTimeout(translateVisible,700);
+  }
+  function makePicker(){
+    var old=document.getElementById('laorus-thai-picker');if(old)old.remove();
+    var ov=document.createElement('div');ov.id='laorus-thai-picker';ov.style.cssText='position:fixed;inset:0;z-index:2147483000;background:rgba(7,18,38,.62);display:flex;align-items:flex-end;justify-content:center;padding:12px';
+    var box=document.createElement('div');box.style.cssText='width:min(100%,520px);background:var(--card,#fff);color:var(--ink,#16243d);border-radius:22px;padding:20px;box-shadow:0 12px 40px #0006;font:inherit';
+    box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h2 style="margin:0;font-size:1.2rem">🌐 เปลี่ยนภาษา</h2><button type="button" id="lt-close" style="min-width:42px;min-height:42px">✕</button></div><p style="margin:12px 0 8px">เลือกภาษาที่ใช้แสดงคำแปลและตัวอย่าง</p><label style="display:block;font-weight:700;margin:10px 0 6px">ภาษาต้นฉบับ</label><select id="lt-src" style="width:100%;min-height:46px;padding:8px;border-radius:10px;font:inherit"><option value="ru">🇷🇺 Русский — ภาษารัสเซีย</option><option value="en">🇬🇧 English — ภาษาอังกฤษ</option></select><label style="display:block;font-weight:700;margin:14px 0 6px">ภาษาแปล</label><select id="lt-tgt" style="width:100%;min-height:46px;padding:8px;border-radius:10px;font:inherit"><option value="th">🇹🇭 ไทย — ภาษาไทย</option><option value="lo">🇱🇦 ລາວ — ภาษาลาว</option><option value="en">🇬🇧 English — ภาษาอังกฤษ</option></select><button type="button" id="lt-apply" style="width:100%;margin-top:18px;min-height:48px;border:0;border-radius:12px;background:#2a56a5;color:#fff;font:inherit;font-weight:700">✓ นำไปใช้</button>';
+    ov.appendChild(box);document.body.appendChild(ov);document.body.style.overflow='hidden';
+    function close(){ov.remove();document.body.style.overflow='';}box.querySelector('#lt-close').onclick=close;ov.onclick=function(e){if(e.target===ov)close();};
+    box.querySelector('#lt-apply').onclick=function(){var s=box.querySelector('#lt-src').value,t=box.querySelector('#lt-tgt').value;close();if(s==='ru'&&t==='th')applyThaiPair();else if(window.LaoRusLang&&typeof window.LaoRusLang.setLang==='function')window.LaoRusLang.setLang(s,t);setTimeout(translateVisible,100);};
+  }
+  function install(){
+    var b=document.getElementById('thai-lang-btn');if(!b){b=document.createElement('button');b.id='thai-lang-btn';b.type='button';b.textContent='🇷🇺 → 🇹🇭 ไทย';b.setAttribute('aria-label','เปลี่ยนภาษา');b.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;z-index:120;min-height:42px;padding:0 12px;border-radius:22px;border:1.5px solid #2a56a5;background:#fff;color:#2a56a5;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 2px 8px #09265e26';b.onclick=makePicker;document.body.appendChild(b);}
+    if(observer)return;observer=new MutationObserver(function(){if(!running){clearTimeout(install.t);install.t=setTimeout(translateVisible,220);}});observer.observe(document.body,{childList:true,subtree:true,characterData:true});setTimeout(translateVisible,350);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();window.LaoRusThai={apply:applyThaiPair,translate:translateText};
+})();
+</script>
+
+<!-- Thai full-app mode: Thai UI, Thai meanings and Thai-script pronunciation -->
+<script id="laorus-thai-full-app-mode">
+(function(){
+  'use strict';
+  var laoToThai={
+    'ກ':'ก','ຂ':'ข','ຄ':'ค','ງ':'ง','ຈ':'จ','ສ':'ส','ຊ':'ช','ຍ':'ย','ດ':'ด','ຕ':'ต','ຖ':'ถ','ທ':'ท','ນ':'น','ບ':'บ','ປ':'ป','ຜ':'ผ','ຝ':'ฝ','ພ':'พ','ຟ':'ฟ','ມ':'ม','ຢ':'ย','ຣ':'ร','ລ':'ล','ວ':'ว','ອ':'อ','ຮ':'ฮ','ຫ':'ห','ຫຼ':'หล','ຼ':'ล','ະ':'ะ','າ':'า','ິ':'ิ','ີ':'ี','ຶ':'ึ','ື':'ื','ຸ':'ุ','ູ':'ู','ເ':'เ','ແ':'แ','ໂ':'โ','ໃ':'ใ','ໄ':'ไ','ເົ':'เา','ຳ':'ำ','່':'่','້':'้','໊':'๊','໋':'๋','໌':'์','ໍ':'็','ฯ':'ฯ'
+  };
+  var ui={'Home':'หน้าหลัก','Saved':'บันทึก','Learn':'เรียนรู้','Media':'สื่อ','Profile':'โปรไฟล์','Search':'ค้นหา','Settings':'การตั้งค่า','Close':'ปิด','Reset':'รีเซ็ต','Apply':'นำไปใช้','Languages':'ภาษา','From':'จาก','To':'ถึง','Russian':'ภาษารัสเซีย','Thai':'ภาษาไทย','All':'ทั้งหมด','Saved words':'คำที่บันทึก','Daily words':'คำประจำวัน','Random words':'คำสุ่ม','Practice':'ฝึกฝน','Listen':'ฟัง','Next':'ถัดไป','Copy':'คัดลอก','Translate':'แปลภาษา','Read aloud':'อ่านออกเสียง','Example':'ตัวอย่าง','Examples':'ตัวอย่าง','Word':'คำศัพท์','Meaning':'ความหมาย','Pronunciation':'คำอ่าน'};
+  function toThaiScript(s){
+    s=String(s||'');
+    Object.keys(laoToThai).sort(function(a,b){return b.length-a.length;}).forEach(function(k){s=s.split(k).join(laoToThai[k]);});
+    return s;
+  }
+  function replaceUiText(){
+    var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),n;
+    while(w.nextNode()){
+      n=w.currentNode;if(!n.nodeValue||!n.nodeValue.trim())continue;
+      if(n.parentElement&&/^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION)$/i.test(n.parentElement.tagName))continue;
+      var t=n.nodeValue.trim();if(ui[t])n.nodeValue=n.nodeValue.replace(t,ui[t]);
+    }
+  }
+  function fixPronunciation(){
+    document.querySelectorAll('#list .card .pr, .card .pr').forEach(function(el){
+      if(!el.dataset.thaiPron)el.dataset.thaiPron=toThaiScript(el.textContent);
+      el.textContent=el.dataset.thaiPron;
+    });
+  }
+  function addThaiLabels(){
+    var input=document.querySelector('#q');if(input){input.placeholder='ค้นหาคำศัพท์รัสเซียหรือคำแปลภาษาไทย';input.setAttribute('aria-label','ค้นหาคำศัพท์');}
+    document.documentElement.lang='th';
+    document.querySelectorAll('[aria-label="ຟັງສຽງ"],[aria-label="Listen"]').forEach(function(x){x.setAttribute('aria-label','ฟังเสียง');});
+    document.querySelectorAll('[aria-label="ບັນທຶກຄຳນີ້"]').forEach(function(x){x.setAttribute('aria-label','บันทึกคำนี้');});
+    document.querySelectorAll('[aria-label="ຈື່ແລ້ວ"]').forEach(function(x){x.setAttribute('aria-label','จำแล้ว');});
+  }
+  function refresh(){
+    replaceUiText();addThaiLabels();fixPronunciation();
+    if(window.LaoRusThai&&typeof window.LaoRusThai.apply==='function')window.LaoRusThai.apply();
+    setTimeout(function(){replaceUiText();addThaiLabels();fixPronunciation();},500);
+    setTimeout(function(){replaceUiText();addThaiLabels();fixPronunciation();},1500);
+  }
+  function boot(){
+    try{localStorage.setItem('laorus:langPair:v1',JSON.stringify({source:'ru',target:'th'}));}catch(e){}
+    refresh();
+    var last=0;new MutationObserver(function(){var now=Date.now();if(now-last<180)return;last=now;setTimeout(function(){replaceUiText();addThaiLabels();fixPronunciation();},80);}).observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,300);},{once:true});else setTimeout(boot,300);
+  window.LaoRusThaiFull={toThaiScript:toThaiScript,refresh:refresh};
+})();
+</script>
+
+<!-- Final Thai audit: apply Russian -> Thai consistently after every redraw and interaction -->
+<script id="laorus-thai-final-audit">
+(function(){
+  'use strict';
+  var busy=false,queued=false;
+  var thaiMap={'ກ':'ก','ຂ':'ข','ຄ':'ค','ງ':'ง','ຈ':'จ','ສ':'ส','ຊ':'ช','ຍ':'ย','ດ':'ด','ຕ':'ต','ຖ':'ถ','ທ':'ท','ນ':'น','ບ':'บ','ປ':'ป','ຜ':'ผ','ຝ':'ฝ','ພ':'พ','ຟ':'ฟ','ມ':'ม','ຢ':'ย','ຣ':'ร','ລ':'ล','ວ':'ว','ອ':'อ','ຮ':'ฮ','ຫ':'ห','ຫຼ':'หล','ະ':'ะ','າ':'า','ິ':'ิ','ີ':'ี','ຶ':'ึ','ື':'ื','ຸ':'ุ','ູ':'ู','ເ':'เ','ແ':'แ','ໂ':'โ','ໃ':'ใ','ໄ':'ไ','ຳ':'ำ','່':'่','້':'้','໊':'๊','໋':'๋','໌':'์','ໍ':'็'};
+  var uiMap={'Home':'หน้าหลัก','Saved':'บันทึก','Learn':'เรียนรู้','Media':'สื่อ','Profile':'โปรไฟล์','Search':'ค้นหา','Settings':'การตั้งค่า','Close':'ปิด','All':'ทั้งหมด','Learn words':'เรียนคำศัพท์','Random words':'สุ่มคำศัพท์','Daily words':'คำประจำวัน','Saved words':'คำที่บันทึก','Practice':'ฝึกฝน','Example':'ตัวอย่าง','Examples':'ตัวอย่าง','Pronunciation':'คำอ่าน','Meaning':'ความหมาย','Listen':'ฟัง','Save':'บันทึก','Next':'ถัดไป','Back':'กลับ'};
+  function pron(s){s=String(s||'');Object.keys(thaiMap).sort(function(a,b){return b.length-a.length;}).forEach(function(k){s=s.split(k).join(thaiMap[k]);});return s;}
+  function lao(s){return /[\u0E80-\u0EFF]/.test(String(s||''));}
+  function textUi(){
+    var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),n;
+    while(w.nextNode()){n=w.currentNode;if(!n.nodeValue||!n.nodeValue.trim())continue;var p=n.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION)$/i.test(p.tagName))continue;var t=n.nodeValue.trim();if(uiMap[t])n.nodeValue=n.nodeValue.replace(t,uiMap[t]);}
+    var q=document.querySelector('#q');if(q){q.placeholder='ค้นหาคำศัพท์รัสเซียหรือคำแปลภาษาไทย';q.setAttribute('aria-label','ค้นหาคำศัพท์');}
+  }
+  async function tr(s){
+    s=String(s||'').trim();if(!s||!lao(s))return s;
+    if(window.LaoRusThai&&typeof window.LaoRusThai.translate==='function'){var x=await window.LaoRusThai.translate(s);if(x&&x!==s)return x;}
+    return s;
+  }
+  async function cards(){
+    var nodes=[].slice.call(document.querySelectorAll('#list .card'));
+    for(var i=0;i<nodes.length;i++){
+      var c=nodes[i],w=c.querySelector('.ru'),p=c.querySelector('.pr'),m=c.querySelector('.lo');
+      if(w){var original=w.dataset.laorusOriginal||w.textContent;w.dataset.laorusOriginal=original;}
+      if(p){var ps=p.dataset.thaiSource||p.textContent;p.dataset.thaiSource=ps;p.textContent=pron(ps);}
+      if(m){var ms=m.dataset.thaiSource||m.textContent;m.dataset.thaiSource=ms;m.textContent=await tr(ms);}
+      var ex=c.querySelectorAll('.exl,.exn');for(var j=0;j<ex.length;j++){var es=ex[j].dataset.thaiSource||ex[j].textContent;ex[j].dataset.thaiSource=es;ex[j].textContent=await tr(es);}
+    }
+  }
+  async function run(){
+    if(busy){queued=true;return;}busy=true;
+    try{try{localStorage.setItem('laorus:langPair:v1',JSON.stringify({source:'ru',target:'th'}));}catch(e){}
+      if(window.LaoRusLang&&typeof window.LaoRusLang.setLang==='function'){var st=window.LaoRusLang.LangState;if(!st||st.source!=='ru'||st.target!=='th')window.LaoRusLang.setLang('ru','th');}
+      document.documentElement.lang='th';document.title='LaoRus | เรียนภาษารัสเซียเป็นภาษาไทย';textUi();await cards();textUi();
+    }catch(e){console.warn('Thai final audit:',e)}
+    busy=false;if(queued){queued=false;setTimeout(run,250);}
+  }
+  function hook(){
+    if(typeof window.draw==='function'&&!window.__thaiAuditDraw){var d=window.draw;window.draw=function(){var r=d.apply(this,arguments);setTimeout(run,40);return r;};window.__thaiAuditDraw=true;}
+    document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#tabs,#bar,#dock,#rbtn,#next-page-btn,.next-page-btn'))setTimeout(run,100);},true);
+    var timer=0;new MutationObserver(function(){clearTimeout(timer);timer=setTimeout(function(){if(!busy)cards();},300);}).observe(document.body,{childList:true,subtree:true});
+    setTimeout(run,400);setTimeout(run,1800);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();
+  window.LaoRusThaiAudit={run:run,pronunciation:pron};
+})();
+</script>
+
+<!-- Dynamic Lao cleanup: translate every newly rendered Lao UI node to Thai -->
+<script id="laorus-thai-dynamic-cleanup">
+(function(){
+  'use strict';
+  var pending={},running=false,timer=0;
+  var exact={'ຟັງຕົວຢ່າງ':'ฟังตัวอย่าง','ຕົວຢ່າງເພີ່ມເຕີມ':'ตัวอย่างเพิ่มเติม','ຝຶກຕົວຢ່າງ':'ฝึกตัวอย่าง','ເລືອກໝວດ':'เลือกหมวดหมู่','ຄຳສັບ':'คำศัพท์','ຄຳປະຈຳວັນ':'คำประจำวัน','ສຸ່ມຄຳໃໝ່':'สุ่มคำใหม่','ບັນທຶກ':'บันทึก','ທັງໝົດ':'ทั้งหมด','ເບິ່ງຄຳສັບຕໍ່ໄປ':'ดูคำศัพท์ถัดไป','ຟັງສຽງ':'ฟังเสียง','ບັນທຶກຄຳນີ້':'บันทึกคำนี้','ຈື່ແລ້ວ':'จำแล้ว'};
+  function hasLao(s){return /[\u0E80-\u0EFF]/.test(String(s||''));}
+  async function translate(s){
+    s=String(s||'');var k=s.trim();if(!hasLao(k))return s;if(exact[k])return exact[k];if(pending[k])return pending[k];
+    pending[k]=(async function(){try{if(window.LaoRusThai&&typeof window.LaoRusThai.translate==='function'){var r=await window.LaoRusThai.translate(k);if(r&&r!==k)return r;}}catch(e){}return k;})();
+    var out=await pending[k];delete pending[k];return out;
+  }
+  function roots(){return document.querySelectorAll('#tabs,#catlbl,#list,.ex-more,#start,#qz,#bar,#dock,#sheet,#lr-reading,#lr2-modal,#lr-menu,[role="dialog"],[aria-modal="true"]');}
+  async function scan(){
+    if(running)return;running=true;var nodes=[],seen=new Set();
+    roots().forEach(function(root){var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),n;while(w.nextNode()){var p=w.currentNode.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION)$/i.test(p.tagName))continue;if(hasLao(w.currentNode.nodeValue)){nodes.push(w.currentNode);}}});
+    for(var i=0;i<nodes.length;i++){var n=nodes[i];if(!n.isConnected||!hasLao(n.nodeValue))continue;var old=n.nodeValue,out=await translate(old);if(out&&out!==old)n.nodeValue=out;}
+    running=false;
+  }
+  function schedule(){clearTimeout(timer);timer=setTimeout(scan,120);}
+  function hook(){
+    schedule();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,characterData:true});
+    document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#tabs,#list,#rbtn,#bar,#dock'))schedule();},true);
+    setTimeout(scan,700);setTimeout(scan,2200);setTimeout(scan,5000);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();
+  window.LaoRusThaiDynamic={scan:scan};
+})();
+</script>
+
+</body>
+</html>
