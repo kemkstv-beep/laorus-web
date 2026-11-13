@@ -7645,5 +7645,19 @@ exBox=function(p){
  window.LaoRusRussianThaiPronunciation={refresh:run,convert:translit};
 })();
 </script>
+<!-- Force Russian pronunciation for every newly rendered .pr element -->
+<script id="laorus-russian-thai-pronunciation-force-v4">
+(function(){
+ 'use strict';
+ var special={'градусник':'กราดุสนิก','достопримечательность':'ดัสตะพรีมีชาตีลนัสต์','тренировка':'ตรีนีรอฟกา','град':'กราด','вино':'วีโน','сплетник':'สปลีตนิก','сессия':'เซสซียา','сушить':'ซูชิต','ежегодно':'เยเชกอดนา','антибиотик':'อันตีบีโอติก','удачи':'อูดาชี','дублирование канала':'ดุบลีโรวานีเย คานาลา','парит':'ปาริต','здравствуйте':'ซดรัฟสตวุยเต','привет':'ปรีเวียต','спасибо':'สปาซีบา','пожалуйста':'ปาชาลุยสตา','до свидания':'ดาสวีดานียา','хорошо':'คาราโช','меню':'เมนยู'};
+ function key(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[!?.,:;«»()\[\]—–-]+/g,' ').replace(/\s+/g,' ').trim();}
+ function convert(text){var raw=String(text||''),k=key(raw);if(special[k])return special[k];var s=raw.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();var pairs=[['щ','ช'],['ж','ช'],['ч','ช'],['ш','ช'],['ц','ซ'],['ю','ยู'],['я','ยา'],['ё','โย'],['й','ย'],['ы','อึ'],['э','เอ'],['ъ',''],['ь','']];pairs.forEach(function(p){s=s.split(p[0]).join(p[1]);});var m={а:'อา',б:'บ',в:'ว',г:'ก',д:'ด',е:'เย',з:'ซ',и:'อี',к:'ค',л:'ล',м:'ม',н:'น',о:'โอ',п:'ป',р:'ร',с:'ส',т:'ต',у:'อู',ф:'ฟ',х:'ฮ',ъ:'',ы:'อึ',ь:'',э:'เอ',ю:'ยู',я:'ยา',' ':' ','-':'-','—':'—',',':',','.':'.','!':'!','?':'?','«':'«','»':'»',':':':',';':';'};var out='';for(var i=0;i<s.length;i++){var c=s[i];out+=Object.prototype.hasOwnProperty.call(m,c)?m[c]:c;}return out.replace(/อา(?=[ก-ฮ])/g,'า').replace(/โอ(?=[ก-ฮ])/g,'โ').replace(/อี(?=[ก-ฮ])/g,'ี').replace(/อู(?=[ก-ฮ])/g,'ู').replace(/\s+/g,' ').trim();}
+ function target(){return window.LaoRusLang&&window.LaoRusLang.LangState?window.LaoRusLang.LangState.target:'lo';}
+ function findRussian(pr){var root=pr.closest('.card,.fc,.txt,article,li');if(!root)return '';var r=root.querySelector('.ru');return r?(r.dataset.russianSource||(r.dataset.russianSource=r.textContent||'')):'';}
+ function apply(){var th=target()==='th';document.querySelectorAll('.pr').forEach(function(pr){var ru=findRussian(pr);if(!ru)return;if(!pr.dataset.laoPronunciation)pr.dataset.laoPronunciation=pr.textContent||'';pr.dataset.russianSource=ru;pr.textContent=th?convert(ru):pr.dataset.laoPronunciation;});}
+ function hook(){apply();var d=window.draw;if(typeof d==='function'&&!window.__pronForceDraw){window.draw=function(){var r=d.apply(this,arguments);setTimeout(apply,0);setTimeout(apply,180);return r;};window.__pronForceDraw=true;}new MutationObserver(function(){if(target()==='th')setTimeout(apply,0);}).observe(document.body,{childList:true,subtree:true});setInterval(apply,700);}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();window.LaoRusRussianThaiPronunciationForce={refresh:apply,convert:convert};
+})();
+</script>
 </body>
 </html>

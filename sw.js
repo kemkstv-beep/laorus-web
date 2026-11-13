@@ -2,7 +2,7 @@
  * Keeps the single-file app available offline while using network-first
  * navigation so GitHub updates become available without stale HTML.
  */
-const CACHE_NAME = 'laorus-shell-v20261113-3';
+const CACHE_NAME = 'laorus-shell-v20261113-4';
 const APP_SHELL = ['./', './index.html'];
 
 self.addEventListener('install', (event) => {
