@@ -7615,5 +7615,35 @@ exBox=function(p){
   window.LaoRusSocialProfiles=profiles;
 })();
 </script>
+<!-- Thai pronunciation v3: transliterate Russian source, never Lao pronunciation -->
+<script id="laorus-russian-thai-pronunciation-v3">
+(function(){
+ 'use strict';
+ var special={
+  'градусник':'กราดุสนิก','достопримечательность':'ดัสตะพรีมีชาตีลนัสต์','тренировка':'ตรีนีรอฟกา','град':'กราด','вино':'วีโน','сплетник':'สปลีตนิก','сессия':'เซสซียา','сушить':'ซูชิต','ежегодно':'เยเชกอดนา','антибиотик':'อันตีบีโอติก','удачи':'อูดาชี','дублирование канала':'ดุบลีโรวานีเย คานาลา','парит':'ปาริต','здравствуйте':'ซดรัฟสตวุยเต','привет':'ปรีเวียต','спасибо':'สปาซีบา','пожалуйста':'ปาชาลุยสตา','до свидания':'ดาสวีดานียา','хорошо':'คาราโช','меню':'เมนยู','я возьму это':'ยา วอซมู เอตา','без мяса пожалуйста':'เบซ เมียซา ปาชาลุยสตา','счёт пожалуйста':'ชอต ปาชาลุยสตา','где туалет':'กเด ตวาเลต','как вас зовут':'คัก วาส ซาวุต','очень приятно':'โอเชน ปรียัตนา','я из лаоса':'ยา อิส ลาโอซา','меня зовут':'เมนยา ซาวุต','удачи':'อูดาชี'
+ };
+ function clean(s){return String(s||'').replace(/[\u0300-\u036f]/g,'').replace(/[́А́Е́И́О́У́Ы́Э́Ю́Я́а́е́и́о́у́ы́э́ю́я́]/g,function(c){return c.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}).toLowerCase().replace(/[!?.,:;«»()\[\]—–-]+/g,' ').replace(/\s+/g,' ').trim();}
+ function translit(text){
+  var original=String(text||''), key=clean(original);if(special[key])return special[key];
+  var s=original.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  var multi=[['щ','ช'],['ж','ช'],['ч','ช'],['ш','ช'],['ц','ซ'],['ю','ยู'],['я','ยา'],['ё','โย'],['й','ย'],['ы','อึ'],['э','เอ'],['ъ',''],['ь','']];
+  var map={а:'อา',б:'บ',в:'ว',г:'ก',д:'ด',е:'เย',з:'ซ',и:'อี',к:'ค',л:'ล',м:'ม',н:'น',о:'โอ',п:'ป',р:'ร',с:'ส',т:'ต',у:'อู',ф:'ฟ',х:'ฮ',ъ:'',ы:'อึ',ь:'',э:'เอ',ю:'ยู',я:'ยา',' ':' ','\n':'\n','-':'-','—':'—',',':',','.':'.','!':'!','?':'?','«':'«','»':'»',':':':',';':';'};
+  multi.forEach(function(pair){s=s.split(pair[0]).join(pair[1]);});
+  var out='';for(var i=0;i<s.length;i++){var c=s[i];out+=Object.prototype.hasOwnProperty.call(map,c)?map[c]:(/[a-z0-9]/.test(c)?c:c);}
+  return out.replace(/อา(?=[ก-ฮ])/g,'า').replace(/โอ(?=[ก-ฮ])/g,'โ').replace(/อี(?=[ก-ฮ])/g,'ี').replace(/อู(?=[ก-ฮ])/g,'ู').replace(/\s+/g,' ').trim();
+ }
+ function run(){
+  if(window.LaoRusLang&&window.LaoRusLang.LangState&&window.LaoRusLang.LangState.target!=='th')return;
+  document.querySelectorAll('.card').forEach(function(card){
+   var ru=card.querySelector('.ru'),pr=card.querySelector('.pr');if(!ru||!pr)return;
+   var source=ru.dataset.laorusRussian||ru.textContent||'';ru.dataset.laorusRussian=source;pr.dataset.russianPronunciation=source;pr.textContent=translit(source);
+  });
+  document.querySelectorAll('.exr').forEach(function(el){el.dataset.russianPronunciation=el.textContent||'';});
+ }
+ function hook(){run();setTimeout(run,500);setTimeout(run,1500);if(window.LaoRusLang&&!window.__russianThaiPronV3){var old=window.LaoRusLang.setLang;window.LaoRusLang.setLang=function(a,b){var r=old.call(this,a,b);setTimeout(run,120);return r;};window.__russianThaiPronV3=true;}}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();
+ window.LaoRusRussianThaiPronunciation={refresh:run,convert:translit};
+})();
+</script>
 </body>
 </html>
