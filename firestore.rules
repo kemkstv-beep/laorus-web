@@ -46,8 +46,30 @@ service cloud.firestore {
         && id == request.resource.data.date + '_' + request.auth.uid;
     }
 
+    // ຜູ້ເຂົ້າຊົມທຸກຄົນ (ລວມຄົນບໍ່ໄດ້ເຂົ້າສູ່ລະບົບ): ຂຽນໄດ້ສະເພາະຂໍ້ມູນຕົນເອງ, ອ່ານໄດ້ສະເພາະແອດມິນ
+    match /visitors/{vid} {
+      allow create, update: if request.resource.data.keys().hasOnly(
+             ['vid', 'country', 'tz', 'lang', 'dev', 'first', 'last', 'days', 'uid', 'em'])
+        && request.resource.data.vid == vid
+        && vid.size() >= 16 && vid.size() <= 40
+        && request.resource.data.country is string && request.resource.data.country.size() <= 2
+        && request.resource.data.tz.size() <= 40
+        && request.resource.data.lang.size() <= 10
+        && request.resource.data.dev.size() <= 10
+        && request.resource.data.first is number
+        && request.resource.data.last is number
+        && request.resource.data.days is number
+        && (!('uid' in request.resource.data) || (request.resource.data.uid is string && request.resource.data.uid.size() <= 40))
+        && (!('em' in request.resource.data) || (request.resource.data.em is string && request.resource.data.em.size() <= 200));
+    }
+
     // ຕັ້ງຄ່າສາທາລະນະ (ຄຳສັບທີ່ແອດມິນເພີ່ມ/ແກ້, ປະກາດ): ທຸກຄົນອ່ານໄດ້, ແອດມິນຂຽນໄດ້
     match /config/{docId} {
+      allow read: if true;
+    }
+
+    // ຮູບພາບທີ່ແອດມິນເພີ່ມ: ທຸກຄົນອ່ານໄດ້, ແອດມິນຂຽນໄດ້
+    match /pics/{id} {
       allow read: if true;
     }
   }

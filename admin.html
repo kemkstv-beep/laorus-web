@@ -89,8 +89,15 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding
     </div>
     <nav id="tabs" role="tablist" aria-label="ເມນູແອດມິນ">
       <button role="tab" data-tab="overview" aria-selected="true">📊 ພາບລວມ</button>
+      <button role="tab" data-tab="visitors" aria-selected="false">👁 ຜູ້ເຂົ້າຊົມ</button>
       <button role="tab" data-tab="users" aria-selected="false">👥 ຜູ້ໃຊ້</button>
       <button role="tab" data-tab="vocab" aria-selected="false">📚 ຄຳສັບ</button>
+      <button role="tab" data-tab="read" aria-selected="false">📖 ພາກອ່ານ</button>
+      <button role="tab" data-tab="dialog" aria-selected="false">💬 ບົດສົນທະນາ</button>
+      <button role="tab" data-tab="pics" aria-selected="false">🖼 ຮູບພາບ</button>
+      <button role="tab" data-tab="cats" aria-selected="false">🗂 ໝວດໝູ່</button>
+      <button role="tab" data-tab="fix" aria-selected="false">✏️ ແກ້ຂໍ້ຄວາມ</button>
+      <button role="tab" data-tab="feat" aria-selected="false">🧩 ຟີເຈີ</button>
       <button role="tab" data-tab="news" aria-selected="false">📣 ປະກາດ</button>
       <button role="tab" data-tab="raw" aria-selected="false">🗄 ຖານຂໍ້ມູນ</button>
       <button role="tab" data-tab="setup" aria-selected="false">⚙️ ຕັ້ງຄ່າ</button>
@@ -159,7 +166,7 @@ $("#btn-google").onclick = async () => {
 $("#btn-out").onclick = () => signOut(auth);
 /* ===== Tabs ===== */
 let currentTab = "overview";
-const tabs = { overview: vOverview, users: vUsers, vocab: vVocab, news: vNews, raw: vRaw, setup: vSetup };
+const tabs = { overview: vOverview, visitors: vVisitors, users: vUsers, vocab: vVocab, read: vRead, dialog: vDialog, pics: vPics, cats: vCats, fix: vFix, feat: vFeat, news: vNews, raw: vRaw, setup: vSetup };
 $("#tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) go(b.dataset.tab); });
 function go(t) {
   currentTab = t;
@@ -331,6 +338,7 @@ function editWord(x, redraw) {
   openDialog(`<h2>${esc(r.ru)}</h2><p style="color:var(--sub);margin:0 0 8px">${esc(r.cat)}</p>
     <label>ຄຳອ່ານລາວ</label><input id="w-read" value="${esc(o && o.read ? o.read : r.read)}">
     <label>ຄວາມໝາຍລາວ</label><input id="w-lao" value="${esc(o && o.lao ? o.lao : r.lao)}">
+    <label>ຍ້າຍໄປໝວດ (ໃຊ້ກັບຄຳນີ້ທຸກບ່ອນທີ່ມີ)</label><select id="w-cat">${(BASE ? BASE.cats : [r.cat]).map((c) => `<option ${c === ((o && o.cat) || r.cat) ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>
     <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="w-hide" style="width:auto;margin:0" ${o && o.hide ? "checked" : ""}> ເຊື່ອງຄຳນີ້ຈາກແອັບ</label>
     <div id="w-msg" class="msg" hidden></div>
     <div class="actions" style="margin-top:10px"><button class="btn" id="w-save">ບັນທຶກ</button>${o ? '<button class="btn sec" id="w-reset">ຄືນຄ່າເດີມ</button>' : ""}<button class="btn sec" id="w-cancel">ປິດ</button></div>`, (d) => {
@@ -338,8 +346,10 @@ function editWord(x, redraw) {
     $("#w-cancel", d).onclick = closeDialog;
     $("#w-save", d).onclick = (ev) => busy(ev.target, async () => {
       const read = $("#w-read", d).value.trim(), lao = $("#w-lao", d).value.trim(), hide = $("#w-hide", d).checked;
-      const same = read === r.read && lao === r.lao && !hide;
-      if (same) delete CFG.overrides[r.key]; else CFG.overrides[r.key] = { ru: r.ru, read, lao, hide };
+      const cat = $("#w-cat", d).value;
+      const same = read === r.read && lao === r.lao && !hide && cat === r.cat;
+      const prevO = CFG.overrides[r.key];
+      if (same) delete CFG.overrides[r.key]; else { const nv = { ru: r.ru, read, lao, hide }; if (cat !== r.cat) nv.cat = cat; CFG.overrides[r.key] = nv; }
       try { await saveCfg(); closeDialog(); redraw(); } catch (e) { note(m, errText(e), "err"); }
     });
     const rs = $("#w-reset", d);
@@ -409,7 +419,7 @@ async function vRaw() {
   view.innerHTML = `<h2>ຖານຂໍ້ມູນ Firestore</h2>
     <p class="msg info">ແກ້ໄຂເອກະສານໄດ້ໂດຍກົງ (ເວລາໃຊ້ຮູບແບບ <code>{"__ts":"2026-01-01T00:00:00Z"}</code>). ລະວັງ: ການແກ້ໄຂ/ລຶບມີຜົນທັນທີ.</p>
     <div class="card">
-      <div class="row2"><div><label>Collection</label><select id="r-col"><option>users</option><option>stats</option><option>activity</option><option>config</option></select></div>
+      <div class="row2"><div><label>Collection</label><select id="r-col"><option>users</option><option>stats</option><option>activity</option><option>config</option><option>visitors</option><option>pics</option></select></div>
       <div><label>ຈຳນວນສູງສຸດ</label><select id="r-lim"><option>50</option><option>200</option><option>500</option></select></div></div>
       <div class="actions"><button class="btn" id="r-load">ໂຫຼດ</button><button class="btn sec" id="r-new">＋ ເອກະສານໃໝ່</button></div>
       <div id="r-msg" class="msg" hidden></div><div id="r-list"></div></div>`;
@@ -497,23 +507,46 @@ service cloud.firestore {
         && id == request.resource.data.date + '_' + request.auth.uid;
     }
 
+    // ຜູ້ເຂົ້າຊົມທຸກຄົນ (ລວມຄົນບໍ່ໄດ້ເຂົ້າສູ່ລະບົບ): ຂຽນໄດ້ສະເພາະຂໍ້ມູນຕົນເອງ, ອ່ານໄດ້ສະເພາະແອດມິນ
+    match /visitors/{vid} {
+      allow create, update: if request.resource.data.keys().hasOnly(
+             ['vid', 'country', 'tz', 'lang', 'dev', 'first', 'last', 'days', 'uid', 'em'])
+        && request.resource.data.vid == vid
+        && vid.size() >= 16 && vid.size() <= 40
+        && request.resource.data.country is string && request.resource.data.country.size() <= 2
+        && request.resource.data.tz.size() <= 40
+        && request.resource.data.lang.size() <= 10
+        && request.resource.data.dev.size() <= 10
+        && request.resource.data.first is number
+        && request.resource.data.last is number
+        && request.resource.data.days is number
+        && (!('uid' in request.resource.data) || (request.resource.data.uid is string && request.resource.data.uid.size() <= 40))
+        && (!('em' in request.resource.data) || (request.resource.data.em is string && request.resource.data.em.size() <= 200));
+    }
+
     // ຕັ້ງຄ່າສາທາລະນະ (ຄຳສັບທີ່ແອດມິນເພີ່ມ/ແກ້, ປະກາດ): ທຸກຄົນອ່ານໄດ້, ແອດມິນຂຽນໄດ້
     match /config/{docId} {
       allow read: if true;
     }
+
+    // ຮູບພາບທີ່ແອດມິນເພີ່ມ: ທຸກຄົນອ່ານໄດ້, ແອດມິນຂຽນໄດ້
+    match /pics/{id} {
+      allow read: if true;
+    }
   }
-}`;
+}
+`;
 async function vSetup() {
   view.innerHTML = `<h2>ຕັ້ງຄ່າ Firebase (ເຮັດຄັ້ງດຽວ)</h2>
     <div class="card"><ol style="padding-left:20px;margin:0">
       <li><b>ສ້າງ Firestore Database</b>: Firebase Console › Build › <i>Firestore Database</i> › Create database (ເລືອກ production mode, ພາກພື້ນໃກ້ສຸດ).</li>
       <li><b>ວາງ Rules</b>: ແຖບ Rules › ລຶບຂອງເກົ່າ › ວາງກົດດ້ານລຸ່ມນີ້ › Publish. <u>ນີ້ຄືສິ່ງທີ່ລັອກສິດແອດມິນຈິງ</u> (ອີເມວ ${esc(ADMIN_EMAILS.join(", "))}).</li>
       <li><b>ເປີດ Google ໃນ Authentication</b> ແລະ ເພີ່ມໂດເມນທີ່ໃຊ້ໃນ Authorized domains.</li>
-      <li>ອັບໂຫຼດ <code>admin.html</code> ແລະ <code>vocab-base.json</code> ໄວ້ບ່ອນດຽວກັບ <code>index.html</code>.</li>
+      <li>ອັບໂຫຼດ <code>admin.html</code>, <code>vocab-base.json</code>, <code>content-base.json</code> ແລະ <code>pics-base.json</code> ໄວ້ບ່ອນດຽວກັບ <code>index.html</code>.</li>
     </ol></div>
     <div class="card"><div class="actions" style="margin-bottom:8px"><h3 style="margin:0;align-self:center">Firestore Rules</h3><button class="btn sec sm" id="s-copy">ຄັດລອກ</button></div><pre id="s-rules"></pre></div>
     <div class="card"><h3>ກວດການເຊື່ອມຕໍ່</h3><button class="btn" id="s-test">ທົດສອບອ່ານ/ຂຽນ Firestore</button><div id="s-msg" class="msg" hidden></div></div>
-    <p style="color:var(--sub);font-size:13px">ຂໍ້ມູນທີ່ເກັບ: users (ໂປຣໄຟລ໌), stats (ເຂົ້າໃຊ້ລາຍວັນ), activity (ຜູ້ເຂົ້າສູ່ລະບົບລາຍວັນ), config/public (ຄຳສັບທີ່ແອດມິນແກ້ ແລະ ປະກາດ). ຄວນປັບນະໂຍບາຍຄວາມເປັນສ່ວນຕົວໃຫ້ຕົງກັບຂໍ້ມູນເຫຼົ່ານີ້.</p>`;
+    <p style="color:var(--sub);font-size:13px">ຂໍ້ມູນທີ່ເກັບ: users (ໂປຣໄຟລ໌), stats (ເຂົ້າໃຊ້ລາຍວັນ), activity (ຜູ້ເຂົ້າສູ່ລະບົບລາຍວັນ), visitors (ລະຫັດອຸປະກອນ + ລະຫັດປະເທດ + ອີເມວຖ້າເຂົ້າສູ່ລະບົບ), config/public ແລະ config/content (ເນື້ອຫາທີ່ແອດມິນແກ້), pics (ຮູບທີ່ເພີ່ມ). ຄວນປັບນະໂຍບາຍຄວາມເປັນສ່ວນຕົວໃຫ້ຕົງກັບຂໍ້ມູນເຫຼົ່ານີ້.</p>`;
   $("#s-rules").textContent = RULES_TEXT;
   $("#s-copy").onclick = async (e) => { try { await navigator.clipboard.writeText(RULES_TEXT); e.target.textContent = "ຄັດລອກແລ້ວ ✓"; } catch (_) { const r = document.createRange(); r.selectNodeContents($("#s-rules")); getSelection().removeAllRanges(); getSelection().addRange(r); } };
   $("#s-test").onclick = (ev) => busy(ev.target, async () => {
@@ -524,6 +557,301 @@ async function vSetup() {
       note(m, s.exists() ? "ສຳເລັດ: ອ່ານ/ຂຽນ Firestore ໄດ້ ✓" : "ຂຽນໄດ້ແຕ່ອ່ານບໍ່ເຫັນ", s.exists() ? "ok" : "err");
     } catch (e) { note(m, errText(e), "err"); }
   });
+}
+
+/* ===== ເນື້ອຫາ (config/content): ພາກອ່ານ, ບົດສົນທະນາ, ຮູບ, ໝວດ, ແກ້ຂໍ້ຄວາມ, ຟີເຈີ ===== */
+const nk = (s) => String(s || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+let CON = null;
+async function loadCon(force) {
+  if (CON && !force) return CON;
+  const s = await getDoc(doc(db, "config", "content"));
+  const d = s.exists() ? s.data() : {};
+  CON = { textFix: d.textFix || [], hideSel: d.hideSel || [], cats: d.cats || {}, readOv: d.readOv || {}, readExtra: d.readExtra || [], dlgOv: d.dlgOv || {}, dlgExtra: d.dlgExtra || [], picOv: d.picOv || {} };
+  return CON;
+}
+async function saveCon() {
+  await setDoc(doc(db, "config", "content"), { textFix: CON.textFix, hideSel: CON.hideSel, cats: CON.cats, readOv: CON.readOv, readExtra: CON.readExtra, dlgOv: CON.dlgOv, dlgExtra: CON.dlgExtra, picOv: CON.picOv, updatedAt: serverTimestamp() });
+}
+const saveTry = async (m, undo) => { try { await saveCon(); return true; } catch (e) { if (undo) undo(); if (m) note(m, errText(e), "err"); else alert(errText(e)); return false; } };
+let CB = null, PB = null;
+async function loadJson(name, hint) {
+  const r = await fetch(name, { cache: "no-cache" });
+  if (!r.ok) throw new Error("ໂຫຼດ " + name + " ບໍ່ໄດ້ (HTTP " + r.status + "). ຕ້ອງອັບໂຫຼດໄຟລ໌ນີ້ຄຽງຄູ່ admin.html");
+  return r.json();
+}
+async function loadCB() { if (!CB) { const j = await loadJson("content-base.json"); CB = { generated: j.generated, read: j.read.map((x) => ({ ru: x[0], read: x[1], lao: x[2], cat: x[3], key: nk(x[0]) })), dlg: j.dialogs.map((x) => ({ cat: x[0], ru: x[1], lao: x[2], key: nk(x[1]) })), feats: j.features }; } return CB; }
+async function loadPB() { if (!PB) { const j = await loadJson("pics-base.json"); PB = j.pics.map((x) => ({ ru: x[0], read: x[1], lao: x[2], base: x[3], img: x[4], cat: x[5] || "v", key: nk(x[0]) })); } return PB; }
+const PIC_CATS = { v: "ກິລິຍາ", s: "ກິລິຍາສະພາບ", m: "ກິລິຍາເຄື່ອນໄຫວ", o: "ຄຳກົງກັນຂ້າມ" };
+
+/* ----- ຕົວຈັດການຊຸດຂໍ້ມູນທົ່ວໄປ (ພາກອ່ານ / ບົດສົນທະນາ) ----- */
+async function vDataset(cfg) {
+  const [cb] = await Promise.all([loadCB(), loadCon(true)]);
+  const base = cfg.rows(cb);
+  const cats = [...new Set(base.map((r) => r.cat))];
+  const OV = () => CON[cfg.ov], EX = () => CON[cfg.ex];
+  const eff = (r) => { const o = OV()[r.key] || {}; return { ru: o.ru || r.ru, read: typeof o.read === "string" ? o.read : r.read, lao: o.lao || r.lao, cat: o[cfg.catProp] || r.cat, hide: !!o.hide, edited: !!OV()[r.key] }; };
+  view.innerHTML = `<h2>${cfg.title}</h2>
+    <p class="msg info">ໃນແອັບມີ ${base.length} ແຖວ (ຖານຕັ້ງຕົ້ນ ${esc(cb.generated)}) · ແກ້ໄຂແລ້ວ ${Object.keys(OV()).length} · ເພີ່ມໃໝ່ ${EX().length}. ການແກ້ໄຂຈະເຫັນໃນແອັບເມື່ອຜູ້ໃຊ້ເປີດແອັບຄັ້ງຕໍ່ໄປ.${cfg.note || ""}</p>
+    <div class="card">
+      <div class="row2"><div><label>ຄົ້ນຫາ</label><input id="d-q" type="search" placeholder="ລັດເຊຍ / ລາວ / ຄຳອ່ານ"></div>
+      <div><label>ໝວດ</label><select id="d-cat"><option value="">ທຸກໝວດ</option>${cats.map((c) => `<option>${esc(c)}</option>`).join("")}</select></div></div>
+      <div class="actions" style="margin-top:10px"><button class="btn" id="d-add">＋ ເພີ່ມໃໝ່</button></div>
+      <div id="d-list" style="margin-top:8px"></div></div>
+    <div class="card"><h3>ທີ່ເພີ່ມໃໝ່ (${EX().length})</h3><div id="d-extra"></div></div>`;
+  const list = $("#d-list");
+  const draw = () => {
+    const q = nk($("#d-q").value), c = $("#d-cat").value;
+    const out = [];
+    for (const r of base) { const e = eff(r); if (c && e.cat !== c && r.cat !== c) continue; if (q && !nk([e.ru, e.read, e.lao, e.cat].join(" ")).includes(q)) continue; out.push({ r, e }); if (out.length >= 80) break; }
+    list._rows = out;
+    list.innerHTML = out.map((x, i) => `<div class="item"><div class="t"><div class="ru">${esc(x.e.ru)} ${x.e.hide ? '<span class="pill bad">ເຊື່ອງ</span>' : x.e.edited ? '<span class="pill ok">ແກ້ແລ້ວ</span>' : ""}</div>${cfg.hasRead ? `<div class="sub">${esc(x.e.read)}</div>` : ""}<div>${esc(x.e.lao)}</div><div class="sub">${esc(x.e.cat)}</div></div><div class="actions"><button class="btn sec sm" data-i="${i}">ແກ້ໄຂ</button></div></div>`).join("") || '<p style="color:var(--sub)">ບໍ່ພົບ (ສະແດງສູງສຸດ 80 ແຖວ, ພິມຄົ້ນຫາເພື່ອຈຳກັດ)</p>';
+  };
+  draw();
+  ["input", "change"].forEach((ev) => { $("#d-q").addEventListener(ev, draw); $("#d-cat").addEventListener(ev, draw); });
+  const form = (v, extra) => `<datalist id="d-cats">${cats.map((c) => `<option value="${esc(c)}">`).join("")}</datalist>
+    <label>${cfg.ruLabel}</label><textarea id="f-ru" style="font-family:inherit;min-height:60px">${esc(v.ru)}</textarea>
+    ${cfg.hasRead ? `<label>ຄຳອ່ານລາວ</label><input id="f-read" value="${esc(v.read)}">` : ""}
+    <label>ຄວາມໝາຍລາວ</label><textarea id="f-lao" style="font-family:inherit;min-height:60px">${esc(v.lao)}</textarea>
+    <label>ໝວດ (ເລືອກ ຫຼື ພິມຊື່ໃໝ່)</label><input id="f-cat" list="d-cats" value="${esc(v.cat)}">${extra || ""}<div id="f-msg" class="msg" hidden></div>`;
+  list.onclick = (e) => {
+    const b = e.target.closest("[data-i]"); if (!b) return; const x = list._rows[+b.dataset.i]; if (!x) return;
+    openDialog(`<h2>ແກ້ໄຂ</h2>` + form(x.e, `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f-hide" style="width:auto;margin:0" ${x.e.hide ? "checked" : ""}> ເຊື່ອງລາຍການນີ້ຈາກແອັບ</label>
+      <div class="actions" style="margin-top:10px"><button class="btn" id="f-save">ບັນທຶກ</button>${OV()[x.r.key] ? '<button class="btn sec" id="f-reset">ຄືນຄ່າເດີມ</button>' : ""}<button class="btn sec" id="f-cancel">ປິດ</button></div>`), (d) => {
+      const m = $("#f-msg", d); $("#f-cancel", d).onclick = closeDialog;
+      $("#f-save", d).onclick = (ev) => busy(ev.target, async () => {
+        const o = {}; const ru = $("#f-ru", d).value.trim(), lao = $("#f-lao", d).value.trim(), cat = $("#f-cat", d).value.trim();
+        if (!ru || !lao) return note(m, "ຕ້ອງມີຂໍ້ຄວາມລັດເຊຍ ແລະ ຄວາມໝາຍລາວ", "err");
+        if (ru !== x.r.ru) o.ru = ru; if (lao !== x.r.lao) o.lao = lao; if (cat && cat !== x.r.cat) o[cfg.catProp] = cat;
+        if (cfg.hasRead) { const rd = $("#f-read", d).value.trim(); if (rd !== x.r.read) o.read = rd; }
+        if ($("#f-hide", d).checked) o.hide = true;
+        const prev = OV()[x.r.key]; if (Object.keys(o).length) OV()[x.r.key] = o; else delete OV()[x.r.key];
+        if (await saveTry(m, () => { if (prev) OV()[x.r.key] = prev; else delete OV()[x.r.key]; })) { closeDialog(); draw(); }
+      });
+      const rs = $("#f-reset", d);
+      if (rs) rs.onclick = (ev) => busy(ev.target, async () => { const prev = OV()[x.r.key]; delete OV()[x.r.key]; if (await saveTry(m, () => { OV()[x.r.key] = prev; })) { closeDialog(); draw(); } });
+    });
+  };
+  $("#d-add").onclick = () => openDialog(`<h2>ເພີ່ມໃໝ່</h2>` + form({ ru: "", read: "", lao: "", cat: $("#d-cat").value || "" }, `<div class="actions" style="margin-top:10px"><button class="btn" id="f-save">ເພີ່ມ</button><button class="btn sec" id="f-cancel">ປິດ</button></div>`), (d) => {
+    const m = $("#f-msg", d); $("#f-cancel", d).onclick = closeDialog;
+    $("#f-save", d).onclick = (ev) => busy(ev.target, async () => {
+      const w = { ru: $("#f-ru", d).value.trim(), lao: $("#f-lao", d).value.trim() }; w[cfg.catProp] = $("#f-cat", d).value.trim() || cfg.defCat;
+      if (cfg.hasRead) w.read = $("#f-read", d).value.trim();
+      if (!w.ru || !w.lao) return note(m, "ຕ້ອງມີຂໍ້ຄວາມລັດເຊຍ ແລະ ຄວາມໝາຍລາວ", "err");
+      EX().push(w); if (await saveTry(m, () => EX().pop())) { closeDialog(); cfg.reload(); }
+    });
+  });
+  const exl = $("#d-extra");
+  exl.innerHTML = EX().map((w, i) => `<div class="item"><div class="t"><div class="ru">${esc(w.ru)}</div>${w.read ? `<div class="sub">${esc(w.read)}</div>` : ""}<div>${esc(w.lao)}</div><div class="sub">${esc(w[cfg.catProp])}</div></div><div class="actions"><button class="btn bad sm" data-del="${i}">ລຶບ</button></div></div>`).join("") || '<p style="color:var(--sub)">ຍັງບໍ່ມີ</p>';
+  exl.onclick = async (e) => { const b = e.target.closest("[data-del]"); if (!b || !confirm("ລຶບລາຍການນີ້?")) return; const i = +b.dataset.del, w = EX().splice(i, 1)[0]; if (await saveTry(null, () => EX().splice(i, 0, w))) cfg.reload(); else cfg.reload(); };
+}
+function vRead() { return vDataset({ title: "ພາກອ່ານ (ຄັງຄຳສັບ ແລະ ປະໂຫຍກ)", rows: (cb) => cb.read, ov: "readOv", ex: "readExtra", catProp: "cat", hasRead: true, ruLabel: "ຄຳ/ປະໂຫຍກລັດເຊຍ", defCat: "📝 ອື່ນໆ", reload: vRead }); }
+function vDialog() { return vDataset({ title: "ບົດສົນທະນາ", rows: (cb) => cb.dlg, ov: "dlgOv", ex: "dlgExtra", catProp: "topic", hasRead: false, note: " ⚠️ ປຸ່ມ \"ບົດສົນທະນາ · Глаголы движения\" ຖືກເອົາອອກຈາກແອັບແລ້ວ (ໂດຍສະຄຣິບໃນ index.html) ຜູ້ໃຊ້ຈຶ່ງອາດບໍ່ເຫັນຂໍ້ມູນນີ້. ບົດສົນທະນາທີ່ຜູ້ໃຊ້ເຫັນຢູ່ໃນແທັບ ພາກອ່ານ.", ruLabel: "ປະໂຫຍກລັດເຊຍ", defCat: "ປະໂຫຍກໃຊ້ປະຈຳວັນ", reload: vDialog }); }
+
+/* ----- ຮູບພາບ ----- */
+function resizeImage(file, max = 640) {
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onerror = () => rej(new Error("ອ່ານໄຟລ໌ບໍ່ໄດ້"));
+    fr.onload = () => {
+      const im = new Image();
+      im.onerror = () => rej(new Error("ໄຟລ໌ນີ້ບໍ່ແມ່ນຮູບພາບ"));
+      im.onload = () => {
+        const k = Math.min(1, max / Math.max(im.width, im.height)), w = Math.max(1, Math.round(im.width * k)), h = Math.max(1, Math.round(im.height * k));
+        const c = document.createElement("canvas"); c.width = w; c.height = h;
+        const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, w, h); g.drawImage(im, 0, 0, w, h);
+        let q = 0.78, out = c.toDataURL("image/jpeg", q);
+        while (out.length > 260000 && q > 0.35) { q -= 0.08; out = c.toDataURL("image/jpeg", q); }
+        if (out.length > 700000) return rej(new Error("ຮູບໃຫຍ່ເກີນໄປ"));
+        res(out);
+      };
+      im.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+async function vPics() {
+  const [pb] = await Promise.all([loadPB(), loadCon(true)]);
+  const added = (await getDocs(collection(db, "pics"))).docs.map((d) => ({ id: d.id, ...d.data() }));
+  const eff = (p) => { const o = CON.picOv[p.key] || {}; return { read: typeof o.read === "string" ? o.read : p.read, lao: o.lao || p.lao, cat: o.cat || p.cat, hide: !!o.hide, edited: !!CON.picOv[p.key] }; };
+  view.innerHTML = `<h2>ຮູບພາບ</h2>
+    <p class="msg info">ແຖບ "ຮູບພາບ" ໃນແອັບ: ມີ ${pb.length} ຮູບຕັ້ງຕົ້ນ · ເພີ່ມໃໝ່ ${added.length}. ຮູບທີ່ເພີ່ມຈະຖືກຍ່ອໃຫ້ກວ້າງສູງສຸດ 640px ກ່ອນເກັບ. ຮູບໃໝ່ຈະສະແດງເມື່ອຜູ້ໃຊ້ເປີດແຖບຮູບພາບ.</p>
+    <div class="card"><div class="actions"><button class="btn" id="p-add">＋ ເພີ່ມຮູບໃໝ່</button></div></div>
+    <div class="card"><h3>ຮູບທີ່ເພີ່ມໃໝ່ (${added.length})</h3><div id="p-added"></div></div>
+    <div class="card"><h3>ຮູບຕັ້ງຕົ້ນ</h3><input id="p-q" type="search" placeholder="ຄົ້ນຫາ"><div id="p-base" style="margin-top:8px"></div></div>`;
+  const thumb = (src) => `<img src="${src}" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex:none">`;
+  const drawAdded = () => { $("#p-added").innerHTML = added.map((p, i) => `<div class="item">${thumb(p.img)}<div class="t"><div class="ru">${esc(p.ru)} ${p.hide ? '<span class="pill bad">ເຊື່ອງ</span>' : ""}</div><div class="sub">${esc(p.read)}</div><div>${esc(p.lao)}</div><div class="sub">${esc(PIC_CATS[p.cat] || p.cat)}</div></div><div class="actions"><button class="btn sec sm" data-e="${i}">ແກ້ໄຂ</button><button class="btn bad sm" data-d="${i}">ລຶບ</button></div></div>`).join("") || '<p style="color:var(--sub)">ຍັງບໍ່ມີ</p>'; };
+  const drawBase = () => {
+    const q = nk($("#p-q").value); const out = [];
+    for (const p of pb) { const e = eff(p); if (q && !nk([p.ru, e.read, e.lao].join(" ")).includes(q)) continue; out.push({ p, e }); if (out.length >= 60) break; }
+    $("#p-base")._rows = out;
+    $("#p-base").innerHTML = out.map((x, i) => `<div class="item">${thumb(x.p.img)}<div class="t"><div class="ru">${esc(x.p.ru)} ${x.e.hide ? '<span class="pill bad">ເຊື່ອງ</span>' : x.e.edited ? '<span class="pill ok">ແກ້ແລ້ວ</span>' : ""}</div><div class="sub">${esc(x.e.read)}</div><div>${esc(x.e.lao)}</div><div class="sub">${esc(PIC_CATS[x.e.cat] || x.e.cat)}</div></div><div class="actions"><button class="btn sec sm" data-b="${i}">ແກ້ໄຂ</button></div></div>`).join("") || '<p style="color:var(--sub)">ບໍ່ພົບ</p>';
+  };
+  drawAdded(); drawBase(); $("#p-q").addEventListener("input", drawBase);
+  const catSel = (v) => `<select id="f-cat">${Object.keys(PIC_CATS).map((k) => `<option value="${k}" ${k === v ? "selected" : ""}>${PIC_CATS[k]}</option>`).join("")}</select>`;
+  $("#p-base").onclick = (e) => {
+    const b = e.target.closest("[data-b]"); if (!b) return; const x = $("#p-base")._rows[+b.dataset.b];
+    openDialog(`<h2>${esc(x.p.ru)}</h2><img src="${x.p.img}" alt="" style="max-width:100%;max-height:200px;border-radius:10px"><label>ຄຳອ່ານລາວ</label><input id="f-read" value="${esc(x.e.read)}"><label>ຄວາມໝາຍລາວ</label><input id="f-lao" value="${esc(x.e.lao)}"><label>ປະເພດ</label>${catSel(x.e.cat)}
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f-hide" style="width:auto;margin:0" ${x.e.hide ? "checked" : ""}> ເຊື່ອງຮູບນີ້ຈາກແອັບ</label><div id="f-msg" class="msg" hidden></div>
+      <div class="actions" style="margin-top:10px"><button class="btn" id="f-save">ບັນທຶກ</button>${CON.picOv[x.p.key] ? '<button class="btn sec" id="f-reset">ຄືນຄ່າເດີມ</button>' : ""}<button class="btn sec" id="f-cancel">ປິດ</button></div>`, (d) => {
+      const m = $("#f-msg", d); $("#f-cancel", d).onclick = closeDialog;
+      $("#f-save", d).onclick = (ev) => busy(ev.target, async () => {
+        const o = {}, rd = $("#f-read", d).value.trim(), lao = $("#f-lao", d).value.trim(), cat = $("#f-cat", d).value;
+        if (!lao) return note(m, "ຕ້ອງມີຄວາມໝາຍລາວ", "err");
+        if (rd !== x.p.read) o.read = rd; if (lao !== x.p.lao) o.lao = lao; if (cat !== x.p.cat) o.cat = cat; if ($("#f-hide", d).checked) o.hide = true;
+        const prev = CON.picOv[x.p.key]; if (Object.keys(o).length) CON.picOv[x.p.key] = o; else delete CON.picOv[x.p.key];
+        if (await saveTry(m, () => { if (prev) CON.picOv[x.p.key] = prev; else delete CON.picOv[x.p.key]; })) { closeDialog(); drawBase(); }
+      });
+      const rs = $("#f-reset", d); if (rs) rs.onclick = (ev) => busy(ev.target, async () => { const prev = CON.picOv[x.p.key]; delete CON.picOv[x.p.key]; if (await saveTry(m, () => { CON.picOv[x.p.key] = prev; })) { closeDialog(); drawBase(); } });
+    });
+  };
+  const addForm = (p) => {
+    openDialog(`<h2>${p ? "ແກ້ໄຂຮູບ" : "ເພີ່ມຮູບໃໝ່"}</h2>
+      <label>ຄຳລັດເຊຍ</label><input id="f-ru" value="${esc(p ? p.ru : "")}"><label>ຄຳອ່ານລາວ</label><input id="f-read" value="${esc(p ? p.read : "")}"><label>ຄວາມໝາຍລາວ</label><input id="f-lao" value="${esc(p ? p.lao : "")}">
+      <label>ປະເພດ</label>${catSel(p ? p.cat : "v")}
+      <label>ຮູບພາບ ${p ? "(ບໍ່ເລືອກ = ໃຊ້ຮູບເກົ່າ)" : ""}</label><input id="f-file" type="file" accept="image/*"><img id="f-prev" alt="" ${p ? `src="${p.img}"` : "hidden"} style="max-width:100%;max-height:200px;border-radius:10px;margin-top:6px">
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f-hide" style="width:auto;margin:0" ${p && p.hide ? "checked" : ""}> ເຊື່ອງ</label><div id="f-msg" class="msg" hidden></div>
+      <div class="actions" style="margin-top:10px"><button class="btn" id="f-save">ບັນທຶກ</button><button class="btn sec" id="f-cancel">ປິດ</button></div>`, (d) => {
+      const m = $("#f-msg", d); let img = p ? p.img : null; $("#f-cancel", d).onclick = closeDialog;
+      $("#f-file", d).onchange = async (e) => { const f = e.target.files[0]; if (!f) return; try { img = await resizeImage(f); const pv = $("#f-prev", d); pv.src = img; pv.hidden = false; note(m, "ຂະໜາດຮູບຫຼັງຍ່ອ: " + Math.round(img.length / 1024) + " KB", "info"); } catch (er) { note(m, er.message, "err"); } };
+      $("#f-save", d).onclick = (ev) => busy(ev.target, async () => {
+        const ru = $("#f-ru", d).value.trim(), lao = $("#f-lao", d).value.trim();
+        if (!ru || !lao) return note(m, "ຕ້ອງມີຄຳລັດເຊຍ ແລະ ຄວາມໝາຍລາວ", "err"); if (!img) return note(m, "ກະລຸນາເລືອກຮູບ", "err");
+        const data = { ru, read: $("#f-read", d).value.trim(), lao, base: p ? p.base || ru : ru, cat: $("#f-cat", d).value, img, hide: $("#f-hide", d).checked, order: p ? p.order || Date.now() : Date.now(), ts: Date.now() };
+        try { await setDoc(doc(db, "pics", p ? p.id : "p" + Date.now()), data); closeDialog(); vPics(); } catch (er) { note(m, errText(er), "err"); }
+      });
+    });
+  };
+  $("#p-add").onclick = () => addForm(null);
+  $("#p-added").onclick = async (e) => {
+    const b = e.target.closest("[data-e]"), x = e.target.closest("[data-d]");
+    if (b) addForm(added[+b.dataset.e]);
+    else if (x) { const p = added[+x.dataset.d]; if (!confirm("ລຶບຮູບ " + p.ru + " ?")) return; try { await deleteDoc(doc(db, "pics", p.id)); vPics(); } catch (er) { alert(errText(er)); } }
+  };
+}
+
+/* ----- ໝວດໝູ່ ----- */
+async function vCats() {
+  const [base, cb] = await Promise.all([loadBase(), loadCB(), loadCon(true)]);
+  const count = (arr) => { const m = {}; arr.forEach((r) => { m[r.cat] = (m[r.cat] || 0) + 1; }); return m; };
+  const secs = [
+    { id: "vocab", title: "📚 ໝວດຄຳສັບ", counts: count(base.rows) },
+    { id: "read", title: "📖 ໝວດພາກອ່ານ", counts: count(cb.read) },
+    { id: "dlg", title: "💬 ໝວດບົດສົນທະນາ", counts: count(cb.dlg) }
+  ];
+  const cc = (id) => (CON.cats[id] = CON.cats[id] || { ren: {}, hide: [] });
+  const draw = () => {
+    view.innerHTML = `<h2>ຈັດການໝວດໝູ່</h2><p class="msg info">ປ່ຽນຊື່ໝວດ ຫຼື ເຊື່ອງໝວດທັງໝວດຈາກແອັບ. ຖ້າປ່ຽນຊື່ໃຫ້ກົງກັບໝວດທີ່ມີຢູ່ ຈະຖືກລວມເຂົ້າກັນ. ການເພີ່ມໝວດໃໝ່: ໃສ່ຊື່ໝວດໃໝ່ຕອນເພີ່ມຄຳ/ປະໂຫຍກ. ໝາຍເຫດ: ຄວາມຄືບໜ້າການຮຽນທີ່ຜູ້ໃຊ້ບັນທຶກໄວ້ອາດຜູກກັບຊື່ໝວດເດີມ.</p>` +
+      secs.map((s) => { const c = cc(s.id); return `<div class="card"><h3>${s.title} (${Object.keys(s.counts).length})</h3><input type="search" data-q="${s.id}" placeholder="ຄົ້ນຫາໝວດ"><div data-box="${s.id}" style="margin-top:6px"></div></div>`; }).join("");
+    secs.forEach((s) => {
+      const box = $(`[data-box="${s.id}"]`), q = $(`[data-q="${s.id}"]`);
+      const paint = () => {
+        const c = cc(s.id), f = nk(q.value);
+        const names = Object.keys(s.counts).filter((n) => !f || nk(n + " " + (c.ren[n] || "")).includes(f)).slice(0, 120);
+        box.innerHTML = names.map((n) => `<div class="item"><div class="t"><div class="ru">${esc(c.ren[n] || n)} ${c.ren[n] ? '<span class="pill ok">ປ່ຽນຊື່</span>' : ""} ${c.hide.includes(n) ? '<span class="pill bad">ເຊື່ອງ</span>' : ""}</div><div class="sub">${c.ren[n] ? "ເດີມ: " + esc(n) + " · " : ""}${s.counts[n]} ແຖວ</div></div><div class="actions"><button class="btn sec sm" data-r="${esc(n)}">ປ່ຽນຊື່</button><button class="btn sec sm" data-h="${esc(n)}">${c.hide.includes(n) ? "ສະແດງ" : "ເຊື່ອງ"}</button></div></div>`).join("") || '<p style="color:var(--sub)">ບໍ່ພົບ</p>';
+      };
+      paint(); q.addEventListener("input", paint);
+      box.onclick = async (e) => {
+        const r = e.target.closest("[data-r]"), h = e.target.closest("[data-h]"); const c = cc(s.id); const backup = JSON.stringify(c);
+        if (r) {
+          const n = r.dataset.r; const v = prompt("ຊື່ໝວດໃໝ່ (ປ່ອຍວ່າງ = ຄືນຊື່ເດີມ)", c.ren[n] || n); if (v === null) return;
+          if (v.trim() && v.trim() !== n) c.ren[n] = v.trim(); else delete c.ren[n];
+        } else if (h) { const n = h.dataset.h; const i = c.hide.indexOf(n); if (i >= 0) c.hide.splice(i, 1); else c.hide.push(n); } else return;
+        if (!(await saveTry(null, () => { CON.cats[s.id] = JSON.parse(backup); }))) { paint(); return; }
+        paint();
+      };
+    });
+  };
+  draw();
+}
+
+/* ----- ແກ້ຂໍ້ຄວາມທີ່ຜິດ ----- */
+async function vFix() {
+  await loadCon(true);
+  view.innerHTML = `<h2>ແກ້ຂໍ້ຄວາມທີ່ຜິດໃນແອັບ</h2>
+    <p class="msg info">ຕັ້ງກົດ "ຄົ້ນຫາ → ປ່ຽນ" ເພື່ອແກ້ຕົວສະກົດ/ຂໍ້ຄວາມຜິດທົ່ວທັງແອັບ (ຄຳສັບ, ຕົວຢ່າງ, ພາກອ່ານ, ບົດສົນທະນາ ແລະ ຂໍ້ຄວາມໃນໜ້າຈໍ). ໃຊ້ໄດ້ກັບຂໍ້ຄວາມຕົງເປ໊ະ (ແຍກຕົວພິມນ້ອຍ-ໃຫຍ່). ຢ່າໃຊ້ຄຳສັ້ນເກີນໄປ ເພາະອາດປ່ຽນຜິດບ່ອນ. ການແກ້ຄຳດຽວແບບລະອຽດ ໃຫ້ໃຊ້ແຖບ ຄຳສັບ.</p>
+    <div class="card"><h3>ກວດຫາຂໍ້ຄວາມ</h3>
+      <div class="row2"><div><label>ຂໍ້ຄວາມທີ່ຜິດ (ຄົ້ນຫາ)</label><input id="x-f"></div><div><label>ແກ້ເປັນ</label><input id="x-r"></div></div>
+      <div class="actions" style="margin-top:10px"><button class="btn sec" id="x-find">🔎 ກວດວ່າມີຢູ່ບ່ອນໃດ</button><button class="btn" id="x-add">＋ ເພີ່ມກົດ</button></div>
+      <div id="x-msg" class="msg" hidden></div><div id="x-res" style="margin-top:8px"></div></div>
+    <div class="card"><h3>ກົດທີ່ໃຊ້ຢູ່ (${CON.textFix.length})</h3><div id="x-list"></div></div>`;
+  const msg = $("#x-msg");
+  const drawList = () => { $("#x-list").innerHTML = CON.textFix.map((x, i) => `<div class="item"><div class="t"><div class="ru">${esc(x.f)} → ${esc(x.r) || "<i>(ລຶບອອກ)</i>"}</div></div><div class="actions"><button class="btn bad sm" data-d="${i}">ລຶບກົດ</button></div></div>`).join("") || '<p style="color:var(--sub)">ຍັງບໍ່ມີກົດ</p>'; };
+  drawList();
+  $("#x-find").onclick = (ev) => busy(ev.target, async () => {
+    const f = $("#x-f").value; if (f.length < 2) return note(msg, "ໃສ່ຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ", "err");
+    note(msg, "ກຳລັງຄົ້ນ…", "info");
+    try {
+      const [b, cb] = await Promise.all([loadBase(), loadCB()]);
+      const hits = []; const add = (where, a) => { if (a.some((s) => String(s || "").includes(f))) hits.push([where, a.filter(Boolean).join(" · ")]); };
+      b.rows.forEach((r) => add("ຄຳສັບ/" + r.cat, [r.ru, r.read, r.lao])); cb.read.forEach((r) => add("ພາກອ່ານ", [r.ru, r.read, r.lao])); cb.dlg.forEach((r) => add("ບົດສົນທະນາ", [r.ru, r.lao]));
+      note(msg, hits.length ? `ພົບ ${hits.length} ແຖວໃນຖານຂໍ້ມູນ (ບໍ່ນັບຂໍ້ຄວາມຕົວຢ່າງ ແລະ ໜ້າຈໍ ທີ່ຈະຖືກແກ້ນຳ)` : "ບໍ່ພົບໃນຖານຂໍ້ມູນຫຼັກ (ອາດມີໃນຕົວຢ່າງ/ໜ້າຈໍ)", hits.length ? "ok" : "info");
+      $("#x-res").innerHTML = hits.slice(0, 30).map((h) => `<div class="item"><div class="t"><div class="sub">${esc(h[0])}</div><div>${esc(h[1])}</div></div></div>`).join("");
+    } catch (e) { note(msg, errText(e), "err"); }
+  });
+  $("#x-add").onclick = (ev) => busy(ev.target, async () => {
+    const f = $("#x-f").value, r = $("#x-r").value;
+    if (f.length < 2) return note(msg, "ຂໍ້ຄວາມທີ່ຄົ້ນຫາຕ້ອງມີຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ", "err");
+    if (f === r) return note(msg, "ຂໍ້ຄວາມທັງສອງເໝືອນກັນ", "err");
+    if (CON.textFix.some((x) => x.f === f)) return note(msg, "ມີກົດນີ້ແລ້ວ", "err");
+    CON.textFix.push({ f, r });
+    if (await saveTry(msg, () => CON.textFix.pop())) { note(msg, "ບັນທຶກແລ້ວ — ຈະໃຊ້ໃນແອັບເມື່ອຜູ້ໃຊ້ເປີດແອັບຄັ້ງຕໍ່ໄປ", "ok"); $("#x-f").value = ""; $("#x-r").value = ""; drawList(); } 
+  });
+  $("#x-list").onclick = async (e) => { const b = e.target.closest("[data-d]"); if (!b) return; const i = +b.dataset.d, x = CON.textFix.splice(i, 1)[0]; if (!(await saveTry(null, () => CON.textFix.splice(i, 0, x)))) { } drawList(); };
+}
+
+/* ----- ຟີເຈີ (ເປີດ/ປິດປຸ່ມໃນແອັບ) ----- */
+const FEATURES = [["#bi-pic", "🖼️ ແຖບ ສື່/ຮູບພາບ"], ["#lr-reading-nav", "📖 ແຖບ ຮຽນຮູ້ (ພາກອ່ານ)"], ["#rulao-course-launch", "🇷🇺 ຄຳສະແລງ ແລະ ຫຼັກສູດຮຽນ"], ["#rl-tools-launch", "📖 ເຄື່ອງມືຝຶກອ່ານ/ຟັງແລ້ວຂຽນ"], ["#lr-verbs-open", "🔤 ລາຍການຄຳກິລິຍາ"], ["#fcbtn", "🃏 Flashcard"], ["#gbtn", "📘 ໄວຍາກອນ ແລະ ຄຳກິລິຍາ"], ["#mybtn", "📒 ຄຳສັບຂອງຂ້ອຍ & ເຄື່ອງມື"], ["#lr-random-book-btn", "🎲 ສຸ່ມປຶ້ມ"]];
+const SEL_OK = /^[#.\w\-\s>]{1,80}$/;
+async function vFeat() {
+  await loadCon(true);
+  const custom = () => CON.hideSel.filter((s) => !FEATURES.some((f) => f[0] === s));
+  view.innerHTML = `<h2>ຟີເຈີໃນແອັບ</h2><p class="msg info">ຕິກເພື່ອ <b>ເຊື່ອງ</b> ປຸ່ມ/ຟັງຊັນນັ້ນຈາກຜູ້ໃຊ້ທຸກຄົນ (ເຊັ່ນ ປິດຊົ່ວຄາວເພາະມີບັນຫາ). ເອົາຕິກອອກເພື່ອເປີດກັບຄືນ. ຜົນຈະເຫັນເມື່ອຜູ້ໃຊ້ເປີດແອັບຄັ້ງຕໍ່ໄປ.</p>
+    <div class="card" id="ft-box">${FEATURES.map((f, i) => `<label style="display:flex;gap:10px;align-items:center;padding:6px 0"><input type="checkbox" data-s="${esc(f[0])}" style="width:auto;margin:0" ${CON.hideSel.includes(f[0]) ? "checked" : ""}> ເຊື່ອງ: ${esc(f[1])}</label>`).join("")}<div id="ft-msg" class="msg" hidden></div></div>
+    <div class="card"><h3>ເຊື່ອງດ້ວຍ CSS selector (ຂັ້ນສູງ)</h3><div class="row2"><input id="ft-sel" placeholder="ເຊັ່ນ #ຊື່id ຫຼື .ຊື່class"><button class="btn" id="ft-add">＋ ເພີ່ມ</button></div><div id="ft-c" style="margin-top:8px"></div></div>`;
+  const msg = $("#ft-msg");
+  const drawC = () => { $("#ft-c").innerHTML = custom().map((s, i) => `<div class="item"><div class="t"><code>${esc(s)}</code></div><div class="actions"><button class="btn bad sm" data-d="${i}">ລຶບ</button></div></div>`).join("") || '<p style="color:var(--sub)">ຍັງບໍ່ມີ</p>'; };
+  drawC();
+  $("#ft-box").onchange = async (e) => {
+    const c = e.target.closest("[data-s]"); if (!c) return; const s = c.dataset.s, backup = CON.hideSel.slice();
+    if (c.checked) { if (!CON.hideSel.includes(s)) CON.hideSel.push(s); } else CON.hideSel = CON.hideSel.filter((x) => x !== s);
+    if (!(await saveTry(msg, () => { CON.hideSel = backup; c.checked = !c.checked; }))) return; note(msg, "ບັນທຶກແລ້ວ", "ok");
+  };
+  $("#ft-add").onclick = async () => { const s = $("#ft-sel").value.trim(); if (!SEL_OK.test(s)) return note(msg, "ໃຊ້ໄດ້ສະເພາະ #id, .class ແລະ ຍະຫວ່າງ/ > (ຕົວອັກສອນ a-z 0-9 _ -)", "err"); if (CON.hideSel.includes(s)) return; CON.hideSel.push(s); if (await saveTry(msg, () => CON.hideSel.pop())) { $("#ft-sel").value = ""; drawC(); note(msg, "ບັນທຶກແລ້ວ", "ok"); } };
+  $("#ft-c").onclick = async (e) => { const b = e.target.closest("[data-d]"); if (!b) return; const s = custom()[+b.dataset.d], backup = CON.hideSel.slice(); CON.hideSel = CON.hideSel.filter((x) => x !== s); if (!(await saveTry(msg, () => { CON.hideSel = backup; }))) { drawC(); return; } drawC(); };
+}
+
+/* ----- ຜູ້ເຂົ້າຊົມ (ທຸກຄົນ ລວມຄົນບໍ່ໄດ້ເຂົ້າສູ່ລະບົບ) ----- */
+var flag = (cc) => /^[A-Z]{2}$/.test(cc || "") ? String.fromCodePoint(...[...cc].map((c) => 127397 + c.charCodeAt(0))) : "🌐";
+let regionNames = null; try { regionNames = new Intl.DisplayNames(["lo", "en"], { type: "region" }); } catch (_) {}
+var cname = (cc) => { if (!/^[A-Z]{2}$/.test(cc || "")) return "ບໍ່ຮູ້ປະເທດ"; try { return (regionNames && regionNames.of(cc)) || cc; } catch (_) { return cc; } };
+async function vVisitors() {
+  const snap = await getDocs(query(collection(db, "visitors"), orderBy("last", "desc"), limit(1000)));
+  const V = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const now = Date.now(), DAY = 864e5;
+  const today = V.filter((v) => now - v.last < DAY).length, w7 = V.filter((v) => now - v.last < 7 * DAY).length, logged = V.filter((v) => v.uid).length;
+  const byC = {}; V.forEach((v) => { const k = v.country || "?"; byC[k] = (byC[k] || 0) + 1; });
+  const top = Object.entries(byC).sort((a, b) => b[1] - a[1]); const max = Math.max(1, ...top.map((x) => x[1]));
+  view.innerHTML = `<h2>ຜູ້ເຂົ້າຊົມທັງໝົດ (<span id="vi-count">${V.length}</span>)</h2>
+    <p class="msg info">ທຸກຄົນທີ່ເປີດເວັບ ແມ່ນແຕ່ຄົນທີ່ບໍ່ໄດ້ເຂົ້າສູ່ລະບົບ ຖືກຈື່ດ້ວຍລະຫັດອຸປະກອນ (ເກັບໃນເບຣາວເຊີ). ຖ້າເຂົາລ້າງຂໍ້ມູນເບຣາວເຊີ ຫຼື ໃຊ້ອຸປະກອນໃໝ່ ຈະນັບເປັນຄົນໃໝ່. ປະເທດໄດ້ຈາກ IP (ເກັບສະເພາະລະຫັດປະເທດ ບໍ່ເກັບ IP) ຖ້າຫາບໍ່ໄດ້ຈະເດົາຈາກເຂດເວລາ. ສະແດງສູງສຸດ 1,000 ຄົນລ່າສຸດ.</p>
+    <div class="grid">
+      <div class="stat"><div class="n">${V.length}</div><div class="l">ຜູ້ເຂົ້າຊົມທັງໝົດ</div></div>
+      <div class="stat"><div class="n">${today}</div><div class="l">ເຂົ້າ 24 ຊົ່ວໂມງ</div></div>
+      <div class="stat"><div class="n">${w7}</div><div class="l">ເຂົ້າ 7 ວັນ</div></div>
+      <div class="stat"><div class="n">${logged}</div><div class="l">ເຄີຍເຂົ້າສູ່ລະບົບ</div></div>
+      <div class="stat"><div class="n">${V.length - logged}</div><div class="l">ບໍ່ໄດ້ເຂົ້າສູ່ລະບົບ</div></div>
+    </div>
+    <div class="card"><h3>ຕາມປະເທດ</h3>${top.slice(0, 12).map(([c, n]) => `<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><span style="width:150px;flex:none">${flag(c === "?" ? "" : c)} ${esc(cname(c === "?" ? "" : c))}</span><span style="flex:1;background:var(--bg);border-radius:6px;overflow:hidden"><i style="display:block;height:14px;width:${Math.round(n / max * 100)}%;background:var(--bar)"></i></span><b>${n}</b></div>`).join("") || "—"}</div>
+    <div class="card"><div class="row2"><div><label>ຄົ້ນຫາ (ອີເມວ / ປະເທດ / ລະຫັດ)</label><input id="vi-q" type="search"></div>
+      <div><label>ປະເທດ</label><select id="vi-c"><option value="">ທັງໝົດ</option>${top.map(([c]) => `<option value="${esc(c)}">${flag(c === "?" ? "" : c)} ${esc(cname(c === "?" ? "" : c))}</option>`).join("")}</select></div></div>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="vi-g" style="width:auto;margin:0"> ສະແດງສະເພາະຄົນທີ່ບໍ່ໄດ້ເຂົ້າສູ່ລະບົບ</label>
+      <div class="tbl" style="margin-top:8px"><table><thead><tr><th>ຜູ້ເຂົ້າຊົມ</th><th>ປະເທດ</th><th>ອຸປະກອນ</th><th>ເຂົ້າຄັ້ງທຳອິດ</th><th>ຄັ້ງຫຼ້າສຸດ</th><th>ຈຳນວນວັນ</th></tr></thead><tbody id="vi-body"></tbody></table></div></div>`;
+  const draw = () => {
+    const q = nk($("#vi-q").value), c = $("#vi-c").value, g = $("#vi-g").checked;
+    const L = V.filter((v) => (!c || (v.country || "?") === c) && (!g || !v.uid) && (!q || nk([v.em, v.country, cname(v.country), v.id, v.tz].join(" ")).includes(q)));
+    $("#vi-count").textContent = L.length;
+    $("#vi-body").innerHTML = L.slice(0, 300).map((v) => `<tr><td>${v.em ? `<b>${esc(v.em)}</b>` : '<span style="color:var(--sub)">ຜູ້ເຂົ້າຊົມທົ່ວໄປ</span>'}<div style="color:var(--sub);font-size:12px">${esc(String(v.id).slice(0, 8))}…</div></td><td>${flag(v.country)} ${esc(cname(v.country))}<div style="color:var(--sub);font-size:12px">${esc(v.tz || "")}</div></td><td>${v.dev === "mobile" ? "📱" : "💻"} ${esc(v.lang || "")}</td><td>${esc(fmtDate(v.first))}</td><td>${esc(fmtDate(v.last))}</td><td>${v.days || 1}</td></tr>`).join("") || '<tr><td colspan="6" style="color:var(--sub)">ບໍ່ພົບ</td></tr>';
+  };
+  draw(); ["input", "change"].forEach((ev) => { $("#vi-q").addEventListener(ev, draw); $("#vi-c").addEventListener(ev, draw); $("#vi-g").addEventListener(ev, draw); });
 }
 
 /* ===== ເລີ່ມຕົ້ນ ===== */
