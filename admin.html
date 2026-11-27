@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex,nofollow" />
+<title>LaoRus Admin</title>
+<style>
+:root{--bg:#f3f5fa;--card:#fff;--ink:#16243d;--sub:#5d6b85;--line:#d9e0ee;--blue:#1f2d86;--accent:#2563eb;--ok:#18794e;--bad:#b42318;--warn:#b45309;--bar:#2563eb;--bar2:#16a34a}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1424;--card:#161f36;--ink:#e8edf8;--sub:#9aa8c6;--line:#2a3658;--blue:#8fa6ff;--accent:#6d9bff;--ok:#4ade80;--bad:#f87171;--warn:#fbbf24;--bar:#6d9bff;--bar2:#4ade80}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Noto Sans Lao","Segoe UI",Roboto,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:12px 16px calc(24px + env(safe-area-inset-bottom,0px))}
+header{position:sticky;top:0;z-index:10;background:var(--bg);padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 8px;border-bottom:1px solid var(--line)}
+header .row{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:10px;justify-content:space-between}
+header b{color:var(--blue);font-size:17px}
+header small{color:var(--sub);display:block;max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{max-width:980px;margin:8px auto 0;display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--sub);font-weight:600}
+nav button[aria-selected=true]{background:var(--blue);border-color:var(--blue);color:var(--bg)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+h2{margin:4px 0 10px;font-size:18px}
+h3{margin:0 0 8px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.stat .n{font-size:26px;font-weight:800;color:var(--blue);line-height:1.2}
+.stat .l{color:var(--sub);font-size:13px}
+.btn{border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;background:var(--blue);color:var(--bg)}
+.btn.sec{background:transparent;border:1.5px solid var(--blue);color:var(--blue)}
+.btn.bad{background:var(--bad);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input,select,textarea{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);margin:3px 0 10px}
+textarea{min-height:120px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+label{font-size:13px;color:var(--sub);font-weight:600}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.row2{grid-template-columns:1fr}}
+.bar{display:flex;gap:6px;align-items:flex-end;height:140px;padding-top:8px}
+.bar div.col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px;height:100%;min-width:0}
+.bar i{display:block;width:100%;border-radius:4px 4px 0 0;min-height:2px}
+.bar small{font-size:10px;color:var(--sub)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--sub);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;background:var(--c)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--sub);font-size:12px}
+.tbl{overflow-x:auto}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;border:1px solid var(--line);color:var(--sub)}
+.pill.ok{color:var(--ok);border-color:var(--ok)}
+.pill.warn{color:var(--warn);border-color:var(--warn)}
+.pill.bad{color:var(--bad);border-color:var(--bad)}
+.msg{padding:10px 12px;border-radius:10px;margin:8px 0;font-size:14px}
+.msg.err{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.msg.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.msg.info{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.item{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item .t{min-width:0;flex:1;word-break:break-word}
+.item .ru{font-weight:700;font-size:16px}
+.item .sub{color:var(--sub);font-size:13px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+dialog{border:0;border-radius:16px;padding:18px;max-width:560px;width:calc(100% - 28px);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+pre{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:12px;line-height:1.5;max-height:340px}
+.center{min-height:100vh;display:grid;place-items:center;padding:20px}
+.center .card{max-width:420px;width:100%;text-align:center}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="login" class="center">
+  <div class="card">
+    <h2 style="color:var(--blue)">LaoRus Admin</h2>
+    <p style="color:var(--sub);margin-top:0">ສຳລັບຜູ້ດູແລລະບົບເທົ່ານັ້ນ</p>
+    <button class="btn" id="btn-google" style="width:100%;padding:12px">ເຂົ້າສູ່ລະບົບດ້ວຍ Google</button>
+    <div id="login-msg" class="msg err" hidden></div>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <div class="row">
+      <div><b>LaoRus Admin</b><small id="who"></small></div>
+      <button class="btn sec sm" id="btn-out">ອອກຈາກລະບົບ</button>
+    </div>
+    <nav id="tabs" role="tablist" aria-label="ເມນູແອດມິນ">
+      <button role="tab" data-tab="overview" aria-selected="true">📊 ພາບລວມ</button>
+      <button role="tab" data-tab="users" aria-selected="false">👥 ຜູ້ໃຊ້</button>
+      <button role="tab" data-tab="vocab" aria-selected="false">📚 ຄຳສັບ</button>
+      <button role="tab" data-tab="news" aria-selected="false">📣 ປະກາດ</button>
+      <button role="tab" data-tab="raw" aria-selected="false">🗄 ຖານຂໍ້ມູນ</button>
+      <button role="tab" data-tab="setup" aria-selected="false">⚙️ ຕັ້ງຄ່າ</button>
+    </nav>
+  </header>
+  <main class="wrap" id="view"></main>
+</div>
+
+<dialog id="dlg"><div id="dlg-body"></div></dialog>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, getCountFromServer, query, where, orderBy, limit, Timestamp, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+/* ===== ຕັ້ງຄ່າ ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAh6JirfCnfsGzQux3VuuuFDdGzKiahPDk",
+  authDomain: "laorus-40700.firebaseapp.com",
+  projectId: "laorus-40700",
+  storageBucket: "laorus-40700.firebasestorage.app",
+  messagingSenderId: "540862599610",
+  appId: "1:540862599610:web:2f6dc2227318d9d3384d83"
+};
+// ໃຊ້ເພື່ອສະແດງໜ້າຈໍເທົ່ານັ້ນ. ການລັອກສິດຈິງຢູ່ທີ່ Firestore Rules (ເບິ່ງແຖບ ຕັ້ງຄ່າ).
+const ADMIN_EMAILS = ["kkem295@gmail.com"];
+const NEW_CAT = "⭐ ຄຳສັບທີ່ບັນທຶກ (ນຳເຂົ້າ)";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = (s, r = document) => r.querySelector(s);
+const view = $("#view");
+const esc = (x) => String(x ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const norm = (w) => String(w || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-zЀ-ӿ0-9\s-]/g, "").replace(/\s+/g, " ").trim();
+const dayStr = (d) => d.toISOString().slice(0, 10);
+const fmtDate = (v) => { try { const d = v && v.toDate ? v.toDate() : (v ? new Date(v) : null); return d && !isNaN(d) ? d.toLocaleString("lo-LA", { dateStyle: "medium", timeStyle: "short" }) : "—"; } catch (_) { return "—"; } };
+const errText = (e) => {
+  const c = (e && e.code) || "";
+  if (c === "permission-denied") return "ບໍ່ມີສິດ (permission-denied): ກວດວ່າໄດ້ວາງ Firestore Rules ແລ້ວ ແລະ ເຂົ້າສູ່ລະບົບດ້ວຍອີເມວແອດມິນ";
+  if (c === "failed-precondition") return "ຕ້ອງສ້າງ Index ໃນ Firestore ກ່ອນ: " + (e.message || "");
+  if (c === "unavailable") return "ເຊື່ອມຕໍ່ Firestore ບໍ່ໄດ້ (ກວດອິນເຕີເນັດ ຫຼື ວ່າໄດ້ສ້າງ Firestore Database ແລ້ວ)";
+  return (c ? c + ": " : "") + (e && e.message ? e.message : e);
+};
+const note = (el, text, kind = "info") => { el.className = "msg " + kind; el.textContent = text; el.hidden = !text; };
+const busy = async (btn, fn) => { btn.disabled = true; try { return await fn(); } finally { btn.disabled = false; } };
+
+/* ===== Dialog ===== */
+const dlg = $("#dlg");
+function openDialog(html, onMount) { $("#dlg-body").innerHTML = html; if (!dlg.open) dlg.showModal(); onMount && onMount($("#dlg-body")); }
+function closeDialog() { if (dlg.open) dlg.close(); }
+dlg.addEventListener("click", (e) => { if (e.target === dlg) closeDialog(); });
+
+/* ===== Auth ===== */
+const loginMsg = $("#login-msg");
+$("#btn-google").onclick = async () => {
+  note(loginMsg, "");
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch (e) {
+    if (e && e.code === "auth/popup-blocked") { try { await signInWithRedirect(auth, new GoogleAuthProvider()); return; } catch (_) {} }
+    const map = { "auth/unauthorized-domain": "ໂດເມນນີ້ຍັງບໍ່ໄດ້ຮັບອະນຸຍາດໃນ Firebase (Authentication › Settings › Authorized domains)", "auth/operation-not-allowed": "ຍັງບໍ່ໄດ້ເປີດ Google ໃນ Firebase Authentication", "auth/popup-closed-by-user": "ຍົກເລີກການເຂົ້າສູ່ລະບົບ" };
+    note(loginMsg, map[e.code] || errText(e), "err");
+  }
+};
+$("#btn-out").onclick = () => signOut(auth);
+/* ===== Tabs ===== */
+let currentTab = "overview";
+const tabs = { overview: vOverview, users: vUsers, vocab: vVocab, news: vNews, raw: vRaw, setup: vSetup };
+$("#tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) go(b.dataset.tab); });
+function go(t) {
+  currentTab = t;
+  document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
+  view.innerHTML = '<p class="msg info">ກຳລັງໂຫຼດ…</p>';
+  Promise.resolve(tabs[t]()).catch((e) => { view.innerHTML = '<div class="msg err"></div>'; $(".msg", view).textContent = errText(e); });
+  scrollTo(0, 0);
+}
+
+/* ===== Config (ຄຳສັບ + ປະກາດ ຢູ່ໃນເອກະສານດຽວ config/public) ===== */
+let CFG = null;
+async function loadCfg(force) {
+  if (CFG && !force) return CFG;
+  const s = await getDoc(doc(db, "config", "public"));
+  const d = s.exists() ? s.data() : {};
+  CFG = { announcements: d.announcements || [], extra: d.extra || [], overrides: d.overrides || {} };
+  return CFG;
+}
+async function saveCfg() {
+  await setDoc(doc(db, "config", "public"), { announcements: CFG.announcements, extra: CFG.extra, overrides: CFG.overrides, updatedAt: serverTimestamp() });
+}
+
+/* ===== 1. ພາບລວມ ===== */
+async function vOverview() {
+  const days = []; for (let i = 13; i >= 0; i--) { const d = new Date(); d.setUTCDate(d.getUTCDate() - i); days.push(dayStr(d)); }
+  const [uc, statsSnap, ...dau] = await Promise.all([
+    getCountFromServer(collection(db, "users")),
+    getDocs(query(collection(db, "stats"), orderBy("date", "desc"), limit(30))),
+    ...days.map((d) => getCountFromServer(query(collection(db, "activity"), where("date", "==", d))))
+  ]);
+  const visits = {}; statsSnap.forEach((s) => { visits[s.id] = s.data().visits || 0; });
+  const dauMap = {}; days.forEach((d, i) => (dauMap[d] = dau[i].data().count));
+  const sum = (arr) => arr.reduce((a, b) => a + b, 0);
+  const today = days[days.length - 1];
+  const v7 = sum(days.slice(-7).map((d) => visits[d] || 0));
+  const v30 = sum(Object.values(visits));
+  const max = Math.max(1, ...days.map((d) => Math.max(visits[d] || 0, dauMap[d] || 0)));
+  let newU = "—";
+  try { const c = await getCountFromServer(query(collection(db, "users"), where("createdAt", ">=", Timestamp.fromDate(new Date(Date.now() - 7 * 864e5))))); newU = c.data().count; } catch (_) {}
+  view.innerHTML = `
+    <h2>ພາບລວມການໃຊ້ງານ</h2>
+    <div class="grid">
+      <div class="stat"><div class="n">${uc.data().count}</div><div class="l">ຜູ້ໃຊ້ທີ່ມີບັນຊີ</div></div>
+      <div class="stat"><div class="n">${newU}</div><div class="l">ຜູ້ໃຊ້ໃໝ່ 7 ວັນ</div></div>
+      <div class="stat"><div class="n">${visits[today] || 0}</div><div class="l">ເຂົ້າໃຊ້ມື້ນີ້ (ທຸກຄົນ)</div></div>
+      <div class="stat"><div class="n">${dauMap[today] || 0}</div><div class="l">ຜູ້ເຂົ້າສູ່ລະບົບມື້ນີ້</div></div>
+      <div class="stat"><div class="n">${v7}</div><div class="l">ເຂົ້າໃຊ້ 7 ວັນ</div></div>
+      <div class="stat"><div class="n">${v30}</div><div class="l">ເຂົ້າໃຊ້ 30 ວັນ</div></div>
+    </div>
+    <div class="card"><h3>14 ວັນຫຼ້າສຸດ</h3>
+      <div class="bar" role="img" aria-label="ກຣາບການເຂົ້າໃຊ້ 14 ວັນ">
+        ${days.map((d) => `<div class="col"><i style="height:${Math.round(((visits[d] || 0) / max) * 100)}%;background:var(--bar)" title="${d}: ${visits[d] || 0}"></i><i style="height:${Math.round(((dauMap[d] || 0) / max) * 100)}%;background:var(--bar2)" title="${d}: ${dauMap[d] || 0}"></i><small>${d.slice(8)}</small></div>`).join("")}
+      </div>
+      <div class="legend"><span style="--c:var(--bar)">ເຂົ້າໃຊ້ທັງໝົດ</span><span style="--c:var(--bar2)">ຜູ້ເຂົ້າສູ່ລະບົບ</span></div>
+      <div class="tbl"><table><thead><tr><th>ວັນທີ (UTC)</th><th>ເຂົ້າໃຊ້</th><th>ຜູ້ເຂົ້າສູ່ລະບົບ</th></tr></thead><tbody>
+      ${days.slice().reverse().map((d) => `<tr><td>${d}</td><td>${visits[d] || 0}</td><td>${dauMap[d] || 0}</td></tr>`).join("")}</tbody></table></div>
+    </div>
+    <p style="color:var(--sub);font-size:13px">ໝາຍເຫດ: "ເຂົ້າໃຊ້" ນັບ 1 ເທື່ອຕໍ່ການເປີດແອັບຕໍ່ວັນຕໍ່ເບຣາວເຊີ (ປະມານຈຳນວນຄົນທີ່ເຂົ້າ, ບໍ່ແມ່ນຈຳນວນຄົນຈິງ). ສະຖິຕິເລີ່ມເກັບຫຼັງແອັບຫຼັກເວີຊັນໃໝ່ຖືກນຳໃຊ້.</p>`;
+}
+
+/* ===== 2. ຜູ້ໃຊ້ ===== */
+let USERS = [];
+async function vUsers() {
+  const snap = await getDocs(query(collection(db, "users"), limit(1000)));
+  USERS = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  USERS.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+  view.innerHTML = `
+    <h2>ຜູ້ໃຊ້ (<span id="u-count">${USERS.length}</span>)</h2>
+    <div class="card">
+      <input id="u-q" type="search" placeholder="ຄົ້ນຫາ ຊື່ / ອີເມວ / ເບີໂທ" aria-label="ຄົ້ນຫາຜູ້ໃຊ້" />
+      <div class="actions"><button class="btn sec sm" id="u-csv">⬇ ສົ່ງອອກ CSV</button></div>
+      <div class="tbl" style="margin-top:8px"><table><thead><tr><th>ຜູ້ໃຊ້</th><th>ເບີໂທ</th><th>ສະໝັກ</th><th>ເຂົ້າຄັ້ງຫຼ້າສຸດ</th><th></th></tr></thead><tbody id="u-body"></tbody></table></div>
+    </div>
+    <p class="msg info">ການລຶບບັນຊີເຂົ້າສູ່ລະບົບ (Authentication) ຕ້ອງເຮັດໃນ Firebase Console › Authentication › Users. ປຸ່ມລຶບຢູ່ນີ້ລຶບສະເພາະຂໍ້ມູນໂປຣໄຟລ໌ໃນ Firestore.</p>`;
+  const body = $("#u-body");
+  const draw = () => {
+    const q = $("#u-q").value.trim().toLowerCase();
+    const list = USERS.filter((u) => !q || [u.email, u.fname, u.lname, u.dname, u.phone].some((x) => String(x || "").toLowerCase().includes(q)));
+    $("#u-count").textContent = list.length;
+    body.innerHTML = list.map((u) => `<tr><td><b>${esc([u.fname, u.lname].filter(Boolean).join(" ") || u.dname || "—")}</b><div class="sub" style="color:var(--sub);font-size:13px">${esc(u.email)}</div></td><td>${esc(u.phone || "—")}</td><td>${esc(fmtDate(u.createdAt))}</td><td>${esc(fmtDate(u.lastSeen))}</td><td><button class="btn sec sm" data-edit="${esc(u.id)}">ແກ້ໄຂ</button></td></tr>`).join("") || `<tr><td colspan="5" style="color:var(--sub)">ບໍ່ພົບຜູ້ໃຊ້</td></tr>`;
+  };
+  draw();
+  $("#u-q").oninput = draw;
+  body.onclick = (e) => { const b = e.target.closest("[data-edit]"); if (b) editUser(b.dataset.edit); };
+  $("#u-csv").onclick = () => {
+    const cols = ["email", "fname", "lname", "dname", "phone", "country", "createdAt", "lastSeen"];
+    const q = (x) => '"' + String(x ?? "").replace(/"/g, '""') + '"';
+    const rows = [cols.join(",")].concat(USERS.map((u) => cols.map((c) => q(c === "createdAt" || c === "lastSeen" ? (u[c]?.toDate?.().toISOString() || "") : u[c])).join(",")));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + rows.join("\n")], { type: "text/csv;charset=utf-8" })); a.download = "laorus-users-" + dayStr(new Date()) + ".csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+}
+function editUser(id) {
+  const u = USERS.find((x) => x.id === id); if (!u) return;
+  openDialog(`<h2>ແກ້ໄຂຜູ້ໃຊ້</h2>
+    <p style="margin:0 0 8px;color:var(--sub);word-break:break-all">${esc(u.email)}<br><small>UID: ${esc(u.id)}</small></p>
+    <div class="row2"><div><label>ຊື່</label><input id="e-fname" maxlength="40" value="${esc(u.fname)}"></div><div><label>ນາມສະກຸນ</label><input id="e-lname" maxlength="40" value="${esc(u.lname)}"></div></div>
+    <label>ຊື່ທີ່ສະແດງ</label><input id="e-dname" maxlength="40" value="${esc(u.dname)}">
+    <div class="row2"><div><label>ເບີໂທ</label><input id="e-phone" maxlength="20" value="${esc(u.phone)}"></div><div><label>ປະເທດ</label><input id="e-country" maxlength="10" value="${esc(u.country)}"></div></div>
+    <div id="e-msg" class="msg" hidden></div>
+    <div class="actions"><button class="btn" id="e-save">ບັນທຶກ</button><button class="btn bad" id="e-del">ລຶບໂປຣໄຟລ໌</button><button class="btn sec" id="e-cancel">ປິດ</button></div>`, (r) => {
+    const m = $("#e-msg", r);
+    $("#e-cancel", r).onclick = closeDialog;
+    $("#e-save", r).onclick = (ev) => busy(ev.target, async () => {
+      try {
+        const data = { fname: $("#e-fname", r).value.trim(), lname: $("#e-lname", r).value.trim(), dname: $("#e-dname", r).value.trim(), phone: $("#e-phone", r).value.trim(), country: $("#e-country", r).value.trim() };
+        await setDoc(doc(db, "users", id), data, { merge: true }); Object.assign(u, data); closeDialog(); vUsers();
+      } catch (e) { note(m, errText(e), "err"); }
+    });
+    $("#e-del", r).onclick = (ev) => { if (!confirm("ລຶບໂປຣໄຟລ໌ຂອງ " + u.email + " ?")) return; busy(ev.target, async () => { try { await deleteDoc(doc(db, "users", id)); closeDialog(); vUsers(); } catch (e) { note(m, errText(e), "err"); } }); };
+  });
+}
+
+/* ===== 3. ຄຳສັບ ===== */
+let BASE = null;
+async function loadBase() {
+  if (BASE) return BASE;
+  const r = await fetch("vocab-base.json", { cache: "no-cache" });
+  if (!r.ok) throw new Error("ໂຫຼດ vocab-base.json ບໍ່ໄດ້ (HTTP " + r.status + "). ຕ້ອງອັບໂຫຼດໄຟລ໌ນີ້ຄຽງຄູ່ admin.html");
+  const j = await r.json();
+  const rows = []; Object.keys(j.categories).forEach((c) => j.categories[c].forEach((x) => rows.push({ cat: c, ru: x[0], read: x[1], lao: x[2], key: norm(x[0]) })));
+  BASE = { cats: Object.keys(j.categories), rows, generated: j.generated };
+  return BASE;
+}
+async function vVocab() {
+  const [base] = await Promise.all([loadBase(), loadCfg(true)]);
+  const missing = base.rows.filter((r) => !r.read.trim() && !(CFG.overrides[r.key] && CFG.overrides[r.key].read)).length;
+  view.innerHTML = `
+    <h2>ຄຳສັບ</h2>
+    <p class="msg info">ໃນແອັບມີ ${base.rows.length} ແຖວ (ຖານຕັ້ງຕົ້ນເມື່ອ ${esc(base.generated)}) · ແກ້ໄຂແລ້ວ ${Object.keys(CFG.overrides).length} · ເພີ່ມໃໝ່ ${CFG.extra.length} · <b>ຂາດຄຳອ່ານ ${missing}</b>. ການແກ້ໄຂຈະປາກົດໃນແອັບເມື່ອຜູ້ໃຊ້ເປີດແອັບຄັ້ງຕໍ່ໄປ.</p>
+    <div class="card">
+      <div class="row2"><div><label>ຄົ້ນຫາ (ລັດເຊຍ ຫຼື ລາວ)</label><input id="v-q" type="search" placeholder="ເຊັ່ນ привет"></div>
+      <div><label>ໝວດ</label><select id="v-cat"><option value="">ທຸກໝວດ</option>${base.cats.map((c) => `<option>${esc(c)}</option>`).join("")}</select></div></div>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="v-miss" style="width:auto;margin:0"> ສະແດງສະເພາະແຖວທີ່ຂາດຄຳອ່ານ</label>
+      <div class="actions" style="margin-top:10px"><button class="btn" id="v-add">＋ ເພີ່ມຄຳໃໝ່</button></div>
+      <div id="v-list" style="margin-top:8px"></div>
+    </div>
+    <div class="card"><h3>ຄຳທີ່ເພີ່ມໃໝ່ (${CFG.extra.length})</h3><div id="v-extra"></div></div>`;
+  const list = $("#v-list");
+  const draw = () => {
+    const q = norm($("#v-q").value), qraw = $("#v-q").value.trim(), cat = $("#v-cat").value, miss = $("#v-miss").checked;
+    const out = [];
+    for (const r of base.rows) {
+      const o = CFG.overrides[r.key];
+      const read = o && o.read ? o.read : r.read, lao = o && o.lao ? o.lao : r.lao;
+      if (cat && r.cat !== cat) continue;
+      if (miss && read.trim()) continue;
+      if (q || qraw) { if (!(r.key.includes(q) && q) && !lao.includes(qraw)) continue; }
+      out.push({ r, o, read, lao });
+      if (out.length >= 80) break;
+    }
+    list.innerHTML = out.map((x, i) => `<div class="item"><div class="t"><div class="ru">${esc(x.r.ru)} ${x.o ? (x.o.hide ? '<span class="pill bad">ເຊື່ອງ</span>' : '<span class="pill ok">ແກ້ແລ້ວ</span>') : ""}</div><div class="sub">${esc(x.read) || '<i style="color:var(--bad)">ຂາດຄຳອ່ານ</i>'}</div><div>${esc(x.lao)}</div><div class="sub">${esc(x.r.cat)}</div></div><div class="actions"><button class="btn sec sm" data-i="${i}">ແກ້ໄຂ</button></div></div>`).join("") || '<p style="color:var(--sub)">ບໍ່ພົບ (ສະແດງສູງສຸດ 80 ແຖວ, ພິມຄົ້ນຫາເພື່ອຈຳກັດ)</p>';
+    list._rows = out;
+  };
+  draw();
+  ["input", "change"].forEach((ev) => { $("#v-q").addEventListener(ev, draw); $("#v-cat").addEventListener(ev, draw); $("#v-miss").addEventListener(ev, draw); });
+  list.onclick = (e) => { const b = e.target.closest("[data-i]"); if (b) editWord(list._rows[+b.dataset.i], draw); };
+  $("#v-add").onclick = () => addWord(base, () => vVocab());
+  const ex = $("#v-extra");
+  ex.innerHTML = CFG.extra.map((w, i) => `<div class="item"><div class="t"><div class="ru">${esc(w.ru)}</div><div class="sub">${esc(w.read)}</div><div>${esc(w.lao)}</div><div class="sub">${esc(w.cat)}${w.exRu ? " · " + esc(w.exRu) : ""}</div></div><div class="actions"><button class="btn bad sm" data-del="${i}">ລຶບ</button></div></div>`).join("") || '<p style="color:var(--sub)">ຍັງບໍ່ມີ</p>';
+  ex.onclick = async (e) => {
+    const b = e.target.closest("[data-del]"); if (!b) return;
+    if (!confirm("ລຶບຄຳນີ້?")) return;
+    CFG.extra.splice(+b.dataset.del, 1);
+    try { await saveCfg(); vVocab(); } catch (err) { alert(errText(err)); }
+  };
+}
+function editWord(x, redraw) {
+  if (!x) return; const { r, o } = x;
+  openDialog(`<h2>${esc(r.ru)}</h2><p style="color:var(--sub);margin:0 0 8px">${esc(r.cat)}</p>
+    <label>ຄຳອ່ານລາວ</label><input id="w-read" value="${esc(o && o.read ? o.read : r.read)}">
+    <label>ຄວາມໝາຍລາວ</label><input id="w-lao" value="${esc(o && o.lao ? o.lao : r.lao)}">
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="w-hide" style="width:auto;margin:0" ${o && o.hide ? "checked" : ""}> ເຊື່ອງຄຳນີ້ຈາກແອັບ</label>
+    <div id="w-msg" class="msg" hidden></div>
+    <div class="actions" style="margin-top:10px"><button class="btn" id="w-save">ບັນທຶກ</button>${o ? '<button class="btn sec" id="w-reset">ຄືນຄ່າເດີມ</button>' : ""}<button class="btn sec" id="w-cancel">ປິດ</button></div>`, (d) => {
+    const m = $("#w-msg", d);
+    $("#w-cancel", d).onclick = closeDialog;
+    $("#w-save", d).onclick = (ev) => busy(ev.target, async () => {
+      const read = $("#w-read", d).value.trim(), lao = $("#w-lao", d).value.trim(), hide = $("#w-hide", d).checked;
+      const same = read === r.read && lao === r.lao && !hide;
+      if (same) delete CFG.overrides[r.key]; else CFG.overrides[r.key] = { ru: r.ru, read, lao, hide };
+      try { await saveCfg(); closeDialog(); redraw(); } catch (e) { note(m, errText(e), "err"); }
+    });
+    const rs = $("#w-reset", d);
+    if (rs) rs.onclick = (ev) => busy(ev.target, async () => { delete CFG.overrides[r.key]; try { await saveCfg(); closeDialog(); redraw(); } catch (e) { note(m, errText(e), "err"); } });
+  });
+}
+function addWord(base, done) {
+  openDialog(`<h2>ເພີ່ມຄຳໃໝ່</h2>
+    <label>ໝວດ</label><select id="n-cat">${base.cats.map((c) => `<option ${c === NEW_CAT ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>
+    <label>ຄຳລັດເຊຍ (ໃສ່ເຄື່ອງໝາຍເນັ້ນສຽງໄດ້)</label><input id="n-ru">
+    <label>ຄຳອ່ານລາວ</label><input id="n-read">
+    <label>ຄວາມໝາຍລາວ</label><input id="n-lao">
+    <h3 style="margin-top:6px">ຕົວຢ່າງປະໂຫຍກ (ບໍ່ບັງຄັບ)</h3>
+    <input id="n-exru" placeholder="ປະໂຫຍກລັດເຊຍ"><input id="n-exread" placeholder="ຄຳອ່ານລາວ"><input id="n-exlao" placeholder="ຄວາມໝາຍລາວ">
+    <div id="n-msg" class="msg" hidden></div>
+    <div class="actions"><button class="btn" id="n-save">ເພີ່ມ</button><button class="btn sec" id="n-cancel">ປິດ</button></div>`, (d) => {
+    const m = $("#n-msg", d);
+    $("#n-cancel", d).onclick = closeDialog;
+    $("#n-save", d).onclick = (ev) => busy(ev.target, async () => {
+      const w = { cat: $("#n-cat", d).value, ru: $("#n-ru", d).value.trim(), read: $("#n-read", d).value.trim(), lao: $("#n-lao", d).value.trim(), exRu: $("#n-exru", d).value.trim(), exRead: $("#n-exread", d).value.trim(), exLao: $("#n-exlao", d).value.trim() };
+      if (!w.ru || !w.lao) return note(m, "ຕ້ອງໃສ່ຄຳລັດເຊຍ ແລະ ຄວາມໝາຍລາວ", "err");
+      if (base.rows.some((r) => r.key === norm(w.ru)) || CFG.extra.some((e) => norm(e.ru) === norm(w.ru))) return note(m, "ມີຄຳນີ້ຢູ່ແລ້ວ (ໃຊ້ປຸ່ມແກ້ໄຂແທນ)", "err");
+      CFG.extra.push(w);
+      try { await saveCfg(); closeDialog(); done(); } catch (e) { CFG.extra.pop(); note(m, errText(e), "err"); }
+    });
+  });
+}
+
+/* ===== 4. ປະກາດ ===== */
+async function vNews() {
+  await loadCfg(true);
+  const draw = () => {
+    const L = CFG.announcements.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    $("#n-list").innerHTML = L.map((a) => `<div class="item"><div class="t"><div class="ru">${esc(a.title)} ${a.active ? '<span class="pill ok">ເປີດ</span>' : '<span class="pill">ປິດ</span>'} ${a.level === "important" ? '<span class="pill warn">ສຳຄັນ</span>' : ""}</div><div>${esc(a.body)}</div><div class="sub">${esc(fmtDate(a.ts))}</div></div><div class="actions"><button class="btn sec sm" data-t="${esc(a.id)}">${a.active ? "ປິດ" : "ເປີດ"}</button><button class="btn bad sm" data-d="${esc(a.id)}">ລຶບ</button></div></div>`).join("") || '<p style="color:var(--sub)">ຍັງບໍ່ມີປະກາດ</p>';
+  };
+  view.innerHTML = `<h2>ປະກາດ</h2>
+    <div class="card"><h3>ສ້າງປະກາດໃໝ່</h3>
+      <label>ຫົວຂໍ້</label><input id="a-title" maxlength="80">
+      <label>ເນື້ອຫາ</label><textarea id="a-body" maxlength="600" style="font-family:inherit;min-height:90px"></textarea>
+      <div class="row2"><div><label>ລະດັບ</label><select id="a-level"><option value="info">ທົ່ວໄປ</option><option value="important">ສຳຄັນ</option></select></div></div>
+      <div id="a-msg" class="msg" hidden></div>
+      <button class="btn" id="a-add">ເຜີຍແຜ່</button></div>
+    <div class="card"><h3>ປະກາດທັງໝົດ</h3><div id="n-list"></div></div>
+    <p class="msg info">ຜູ້ໃຊ້ຈະເຫັນປະກາດທີ່ເປີດຢູ່ເມື່ອເປີດແອັບ (ສະແດງ 1 ປະກາດລ່າສຸດທີ່ຍັງບໍ່ເຄີຍປິດ).</p>`;
+  draw();
+  $("#a-add").onclick = (ev) => busy(ev.target, async () => {
+    const m = $("#a-msg"), title = $("#a-title").value.trim(), body = $("#a-body").value.trim();
+    if (!title) return note(m, "ໃສ່ຫົວຂໍ້", "err");
+    const a = { id: "a" + Date.now(), title, body, level: $("#a-level").value, active: true, ts: Date.now() };
+    CFG.announcements.push(a);
+    try { await saveCfg(); $("#a-title").value = ""; $("#a-body").value = ""; note(m, "ເຜີຍແຜ່ແລ້ວ", "ok"); draw(); } catch (e) { CFG.announcements.pop(); note(m, errText(e), "err"); }
+  });
+  $("#n-list").onclick = async (e) => {
+    const t = e.target.closest("[data-t]"), d = e.target.closest("[data-d]");
+    const id = (t || d || {}).dataset ? (t ? t.dataset.t : d.dataset.d) : null; if (!id) return;
+    const backup = JSON.stringify(CFG.announcements);
+    if (t) { const a = CFG.announcements.find((x) => x.id === id); a.active = !a.active; }
+    else { if (!confirm("ລຶບປະກາດນີ້?")) return; CFG.announcements = CFG.announcements.filter((x) => x.id !== id); }
+    try { await saveCfg(); draw(); } catch (err) { CFG.announcements = JSON.parse(backup); alert(errText(err)); draw(); }
+  };
+}
+
+/* ===== 5. ຖານຂໍ້ມູນ (ເຂົ້າເຖິງໂດຍກົງ) ===== */
+const toJ = (v) => v && typeof v.toDate === "function" ? { __ts: v.toDate().toISOString() } : Array.isArray(v) ? v.map(toJ) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, toJ(x)])) : v;
+const fromJ = (v) => v && typeof v === "object" && !Array.isArray(v) && "__ts" in v && Object.keys(v).length === 1 ? Timestamp.fromDate(new Date(v.__ts)) : Array.isArray(v) ? v.map(fromJ) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fromJ(x)])) : v;
+async function vRaw() {
+  view.innerHTML = `<h2>ຖານຂໍ້ມູນ Firestore</h2>
+    <p class="msg info">ແກ້ໄຂເອກະສານໄດ້ໂດຍກົງ (ເວລາໃຊ້ຮູບແບບ <code>{"__ts":"2026-01-01T00:00:00Z"}</code>). ລະວັງ: ການແກ້ໄຂ/ລຶບມີຜົນທັນທີ.</p>
+    <div class="card">
+      <div class="row2"><div><label>Collection</label><select id="r-col"><option>users</option><option>stats</option><option>activity</option><option>config</option></select></div>
+      <div><label>ຈຳນວນສູງສຸດ</label><select id="r-lim"><option>50</option><option>200</option><option>500</option></select></div></div>
+      <div class="actions"><button class="btn" id="r-load">ໂຫຼດ</button><button class="btn sec" id="r-new">＋ ເອກະສານໃໝ່</button></div>
+      <div id="r-msg" class="msg" hidden></div><div id="r-list"></div></div>`;
+  const msg = $("#r-msg");
+  const load = (ev) => busy(ev ? ev.target : $("#r-load"), async () => {
+    try {
+      const col = $("#r-col").value;
+      const s = await getDocs(query(collection(db, col), limit(+$("#r-lim").value)));
+      $("#r-list").innerHTML = s.docs.map((d) => `<div class="item"><div class="t"><b>${esc(d.id)}</b><div class="sub">${esc(JSON.stringify(toJ(d.data())).slice(0, 140))}</div></div><div class="actions"><button class="btn sec sm" data-id="${esc(d.id)}">ເປີດ</button></div></div>`).join("") || '<p style="color:var(--sub)">ວ່າງ</p>';
+      note(msg, s.size + " ເອກະສານ", "ok");
+    } catch (e) { note(msg, errText(e), "err"); }
+  });
+  $("#r-load").onclick = load;
+  const edit = async (col, id) => {
+    let json = "{\n  \n}";
+    if (id) { const s = await getDoc(doc(db, col, id)); json = JSON.stringify(toJ(s.data() || {}), null, 2); }
+    openDialog(`<h2>${esc(col)} / <span id="d-idl">${esc(id || "ໃໝ່")}</span></h2>
+      ${id ? "" : '<label>Document ID</label><input id="d-id">'}
+      <textarea id="d-json" spellcheck="false">${esc(json)}</textarea>
+      <div id="d-msg" class="msg" hidden></div>
+      <div class="actions"><button class="btn" id="d-save">ບັນທຶກ</button>${id ? '<button class="btn bad" id="d-del">ລຶບ</button>' : ""}<button class="btn sec" id="d-cancel">ປິດ</button></div>`, (d) => {
+      const m = $("#d-msg", d);
+      $("#d-cancel", d).onclick = closeDialog;
+      $("#d-save", d).onclick = (ev) => busy(ev.target, async () => {
+        try {
+          const data = fromJ(JSON.parse($("#d-json", d).value));
+          const did = id || $("#d-id", d).value.trim(); if (!did || did.includes("/")) throw new Error("Document ID ບໍ່ຖືກຕ້ອງ");
+          await setDoc(doc(db, col, did), data); closeDialog(); load();
+        } catch (e) { note(m, e instanceof SyntaxError ? "JSON ບໍ່ຖືກຕ້ອງ: " + e.message : errText(e), "err"); }
+      });
+      const del = $("#d-del", d);
+      if (del) del.onclick = (ev) => { if (!confirm("ລຶບ " + col + "/" + id + " ?")) return; busy(ev.target, async () => { try { await deleteDoc(doc(db, col, id)); closeDialog(); load(); } catch (e) { note(m, errText(e), "err"); } }); };
+    });
+  };
+  $("#r-list").onclick = (e) => { const b = e.target.closest("[data-id]"); if (b) edit($("#r-col").value, b.dataset.id).catch((er) => note(msg, errText(er), "err")); };
+  $("#r-new").onclick = () => edit($("#r-col").value, null);
+}
+
+/* ===== 6. ຕັ້ງຄ່າ ===== */
+const RULES_TEXT = `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ແອດມິນ: ຕ້ອງເຂົ້າສູ່ລະບົບດ້ວຍ Google ແລະ ອີເມວຢືນຢັນແລ້ວ
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['kkem295@gmail.com', 'Kkem295@gmail.com'];
+    }
+
+    // ແອດມິນເຂົ້າເຖິງໄດ້ທຸກຢ່າງ
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // ໂປຣໄຟລ໌ຜູ້ໃຊ້: ແຕ່ລະຄົນອ່ານ/ຂຽນໄດ້ສະເພາະຂອງຕົນເອງ
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(
+             ['email', 'fname', 'lname', 'dname', 'phone', 'country', 'createdAt', 'lastSeen'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() < 200
+        && request.resource.data.fname.size() <= 40
+        && request.resource.data.lname.size() <= 40
+        && request.resource.data.dname.size() <= 40
+        && request.resource.data.phone.size() <= 20;
+    }
+
+    // ສະຖິຕິເຂົ້າໃຊ້ລາຍວັນ: ທຸກຄົນເພີ່ມໄດ້ເທື່ອລະ 1 ເທົ່ານັ້ນ
+    match /stats/{day} {
+      allow create: if request.resource.data.keys().hasOnly(['date', 'visits'])
+        && request.resource.data.visits == 1
+        && request.resource.data.date == day;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits'])
+        && request.resource.data.visits == resource.data.visits + 1;
+    }
+
+    // ຜູ້ໃຊ້ທີ່ເຂົ້າສູ່ລະບົບໃນແຕ່ລະວັນ (ນັບ DAU)
+    match /activity/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['date', 'uid'])
+        && request.resource.data.uid == request.auth.uid
+        && id == request.resource.data.date + '_' + request.auth.uid;
+    }
+
+    // ຕັ້ງຄ່າສາທາລະນະ (ຄຳສັບທີ່ແອດມິນເພີ່ມ/ແກ້, ປະກາດ): ທຸກຄົນອ່ານໄດ້, ແອດມິນຂຽນໄດ້
+    match /config/{docId} {
+      allow read: if true;
+    }
+  }
+}`;
+async function vSetup() {
+  view.innerHTML = `<h2>ຕັ້ງຄ່າ Firebase (ເຮັດຄັ້ງດຽວ)</h2>
+    <div class="card"><ol style="padding-left:20px;margin:0">
+      <li><b>ສ້າງ Firestore Database</b>: Firebase Console › Build › <i>Firestore Database</i> › Create database (ເລືອກ production mode, ພາກພື້ນໃກ້ສຸດ).</li>
+      <li><b>ວາງ Rules</b>: ແຖບ Rules › ລຶບຂອງເກົ່າ › ວາງກົດດ້ານລຸ່ມນີ້ › Publish. <u>ນີ້ຄືສິ່ງທີ່ລັອກສິດແອດມິນຈິງ</u> (ອີເມວ ${esc(ADMIN_EMAILS.join(", "))}).</li>
+      <li><b>ເປີດ Google ໃນ Authentication</b> ແລະ ເພີ່ມໂດເມນທີ່ໃຊ້ໃນ Authorized domains.</li>
+      <li>ອັບໂຫຼດ <code>admin.html</code> ແລະ <code>vocab-base.json</code> ໄວ້ບ່ອນດຽວກັບ <code>index.html</code>.</li>
+    </ol></div>
+    <div class="card"><div class="actions" style="margin-bottom:8px"><h3 style="margin:0;align-self:center">Firestore Rules</h3><button class="btn sec sm" id="s-copy">ຄັດລອກ</button></div><pre id="s-rules"></pre></div>
+    <div class="card"><h3>ກວດການເຊື່ອມຕໍ່</h3><button class="btn" id="s-test">ທົດສອບອ່ານ/ຂຽນ Firestore</button><div id="s-msg" class="msg" hidden></div></div>
+    <p style="color:var(--sub);font-size:13px">ຂໍ້ມູນທີ່ເກັບ: users (ໂປຣໄຟລ໌), stats (ເຂົ້າໃຊ້ລາຍວັນ), activity (ຜູ້ເຂົ້າສູ່ລະບົບລາຍວັນ), config/public (ຄຳສັບທີ່ແອດມິນແກ້ ແລະ ປະກາດ). ຄວນປັບນະໂຍບາຍຄວາມເປັນສ່ວນຕົວໃຫ້ຕົງກັບຂໍ້ມູນເຫຼົ່ານີ້.</p>`;
+  $("#s-rules").textContent = RULES_TEXT;
+  $("#s-copy").onclick = async (e) => { try { await navigator.clipboard.writeText(RULES_TEXT); e.target.textContent = "ຄັດລອກແລ້ວ ✓"; } catch (_) { const r = document.createRange(); r.selectNodeContents($("#s-rules")); getSelection().removeAllRanges(); getSelection().addRange(r); } };
+  $("#s-test").onclick = (ev) => busy(ev.target, async () => {
+    const m = $("#s-msg");
+    try {
+      await setDoc(doc(db, "config", "_ping"), { t: serverTimestamp() });
+      const s = await getDoc(doc(db, "config", "_ping")); await deleteDoc(doc(db, "config", "_ping"));
+      note(m, s.exists() ? "ສຳເລັດ: ອ່ານ/ຂຽນ Firestore ໄດ້ ✓" : "ຂຽນໄດ້ແຕ່ອ່ານບໍ່ເຫັນ", s.exists() ? "ok" : "err");
+    } catch (e) { note(m, errText(e), "err"); }
+  });
+}
+
+/* ===== ເລີ່ມຕົ້ນ ===== */
+let me = null;
+onAuthStateChanged(auth, (u) => {
+  me = u;
+  if (u && u.emailVerified && ADMIN_EMAILS.includes((u.email || "").toLowerCase())) {
+    $("#login").hidden = true; $("#app").hidden = false; $("#who").textContent = u.email;
+    go(currentTab);
+  } else {
+    $("#app").hidden = true; $("#login").hidden = false;
+    if (u) { note(loginMsg, "ບັນຊີ " + (u.email || "") + " ບໍ່ມີສິດແອດມິນ", "err"); signOut(auth); }
+  }
+});
+</script>
+</body>
+</html>

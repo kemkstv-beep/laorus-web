@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ແອດມິນ: ຕ້ອງເຂົ້າສູ່ລະບົບດ້ວຍ Google ແລະ ອີເມວຢືນຢັນແລ້ວ
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['kkem295@gmail.com', 'Kkem295@gmail.com'];
+    }
+
+    // ແອດມິນເຂົ້າເຖິງໄດ້ທຸກຢ່າງ
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // ໂປຣໄຟລ໌ຜູ້ໃຊ້: ແຕ່ລະຄົນອ່ານ/ຂຽນໄດ້ສະເພາະຂອງຕົນເອງ
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(
+             ['email', 'fname', 'lname', 'dname', 'phone', 'country', 'createdAt', 'lastSeen'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() < 200
+        && request.resource.data.fname.size() <= 40
+        && request.resource.data.lname.size() <= 40
+        && request.resource.data.dname.size() <= 40
+        && request.resource.data.phone.size() <= 20;
+    }
+
+    // ສະຖິຕິເຂົ້າໃຊ້ລາຍວັນ: ທຸກຄົນເພີ່ມໄດ້ເທື່ອລະ 1 ເທົ່ານັ້ນ
+    match /stats/{day} {
+      allow create: if request.resource.data.keys().hasOnly(['date', 'visits'])
+        && request.resource.data.visits == 1
+        && request.resource.data.date == day;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits'])
+        && request.resource.data.visits == resource.data.visits + 1;
+    }
+
+    // ຜູ້ໃຊ້ທີ່ເຂົ້າສູ່ລະບົບໃນແຕ່ລະວັນ (ນັບ DAU)
+    match /activity/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['date', 'uid'])
+        && request.resource.data.uid == request.auth.uid
+        && id == request.resource.data.date + '_' + request.auth.uid;
+    }
+
+    // ຕັ້ງຄ່າສາທາລະນະ (ຄຳສັບທີ່ແອດມິນເພີ່ມ/ແກ້, ປະກາດ): ທຸກຄົນອ່ານໄດ້, ແອດມິນຂຽນໄດ້
+    match /config/{docId} {
+      allow read: if true;
+    }
+  }
+}
