@@ -162,14 +162,22 @@ async function gemini(systemPrompt, input, maxTokens) {
   if (/flash/.test(model) && !/lite/.test(model)) generationConfig.thinkingConfig = { thinkingBudget: 0 };
   let r;
   try {
-    r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", {
+    // key ແບບ "AQ." = Vertex AI Express; key ແບບ "AIza" = Gemini Developer API (Google AI Studio)
+    const url = apiKey.startsWith("AQ.")
+      ? "https://aiplatform.googleapis.com/v1/publishers/google/models/" + model + ":generateContent"
+      : "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent";
+    r = await fetch(url, {
       method: "POST", headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({ systemInstruction: { parts: [{ text: systemPrompt }] }, contents: [{ role: "user", parts: [{ text: input }] }], generationConfig }),
       signal: AbortSignal.timeout(50000),
     });
   } catch (e) { throw httpError(e && e.name === "TimeoutError" ? 504 : 502, e && e.name === "TimeoutError" ? "Google Gemini ໃຊ້ເວລາດົນເກີນໄປ; ລອງອີກຄັ້ງ" : "ຕິດຕໍ່ Google Gemini ບໍ່ສຳເລັດ"); }
   const j = await r.json().catch(() => null);
-  if (!r.ok || !j || j.error) throw httpError(r.status === 429 ? 429 : r.status >= 500 ? 503 : 502, "Google Gemini ບໍ່ສາມາດປະມວນຜົນຄຳຂໍນີ້ໄດ້");
+  if (!r.ok || !j || j.error) {
+    const why = j && j.error && j.error.message ? String(j.error.message).replace(/\s+/g, " ").slice(0, 160) : "";
+    console.error("gemini error", r.status, why);
+    throw httpError(r.status === 429 ? 429 : r.status >= 500 ? 503 : 502, "Google Gemini ບໍ່ສາມາດປະມວນຜົນຄຳຂໍນີ້ໄດ້ (HTTP " + r.status + (why ? ": " + why : "") + ")");
+  }
   const parts = j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts;
   const text = Array.isArray(parts) ? parts.map((p) => (typeof p.text === "string" ? p.text : "")).join("\n").trim() : "";
   if (!text) throw httpError(502, "AI ບໍ່ໄດ້ສົ່ງຄຳຕອບທີ່ໃຊ້ໄດ້; ລອງປັບຄຳຂໍແລ້ວລອງໃໝ່");
@@ -208,4 +216,4 @@ function readBody(req) {
 }
 function send(res, status, obj) { res.status(status).setHeader("Cache-Control", "no-store").setHeader("Content-Type", "application/json; charset=utf-8").send(JSON.stringify(obj)); }
 
-module.exports = { ALLOWED_AI_TASKS, MAX_AI_INPUT_CHARS, MAX_PUBLIC_AI_INPUT_CHARS, loadRows, originOf, verifyAdmin, rateLimit, clientIp, runAI, runTutor, getRelevantPublicContext, readBody, send };
+module.exports = { gemini, ALLOWED_AI_TASKS, MAX_AI_INPUT_CHARS, MAX_PUBLIC_AI_INPUT_CHARS, loadRows, originOf, verifyAdmin, rateLimit, clientIp, runAI, runTutor, getRelevantPublicContext, readBody, send };
