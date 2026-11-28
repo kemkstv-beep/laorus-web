@@ -1,3 +1,5 @@
+> ທາງທີ່ງ່າຍກວ່າ: ໃຊ້ໂຟນເດີ `/api` ໃນ repo (Vercel Serverless) — ຕັ້ງແຕ່ env `LAORUS_GEMINI_API_KEY` ໃນ Vercel ແລ້ວ Redeploy ກໍໃຊ້ AI ໄດ້ ບໍ່ຕ້ອງໃຊ້ server ນີ້.
+
 # LaoRus AI server (ທາງເລືອກ)
 
 ເວັບ static ເທິງ Vercel ໃຊ້ໄດ້ປົກກະຕິໂດຍບໍ່ຕ້ອງມີ server ນີ້ (ແຖບ LaoRus AI ຈະບໍ່ສະແດງ).
