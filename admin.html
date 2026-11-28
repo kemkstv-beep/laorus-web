@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex,nofollow" />
 <title>LaoRus Admin</title>
+<link rel="icon" type="image/svg+xml" href="/laorus-admin-mark.svg" />
 <style>
 :root{--bg:#f3f5fa;--card:#fff;--ink:#16243d;--sub:#5d6b85;--line:#d9e0ee;--blue:#1f2d86;--accent:#2563eb;--ok:#18794e;--bad:#b42318;--warn:#b45309;--bar:#2563eb;--bar2:#16a34a}
 @media (prefers-color-scheme:dark){:root{--bg:#0e1424;--card:#161f36;--ink:#e8edf8;--sub:#9aa8c6;--line:#2a3658;--blue:#8fa6ff;--accent:#6d9bff;--ok:#4ade80;--bad:#f87171;--warn:#fbbf24;--bar:#6d9bff;--bar2:#4ade80}}
@@ -19,6 +20,13 @@ header b{color:var(--blue);font-size:17px}
 header small{color:var(--sub);display:block;max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 nav{max-width:980px;margin:8px auto 0;display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
+.nav-group{display:contents}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.console{background:#090f1f;color:#c9f7df;border:1px solid #263653;border-radius:14px;padding:14px;font:13px/1.6 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.command-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.command-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.command-card h3{margin-bottom:5px}
+.status-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-right:6px}
 nav button{flex:0 0 auto;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--sub);font-weight:600}
 nav button[aria-selected=true]{background:var(--blue);border-color:var(--blue);color:var(--bg)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
@@ -68,6 +76,14 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding
 .center{min-height:100vh;display:grid;place-items:center;padding:20px}
 .center .card{max-width:420px;width:100%;text-align:center}
 [hidden]{display:none!important}
+.ai-hero{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:18px;border:1px solid color-mix(in srgb,var(--blue) 25%,var(--line));border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 10%,var(--card)),var(--card))}
+.ai-hero h2{margin:8px 0 4px;font-size:22px}
+.ai-hero p,.ai-note{color:var(--sub);margin:4px 0}
+.ai-mark{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:15px;background:var(--blue);color:var(--bg);font-weight:900;letter-spacing:-1px}
+.ai-examples{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.ai-examples button{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:var(--bg);color:var(--ink);cursor:pointer}
+.ai-count{font-size:12px;color:var(--sub);text-align:right;margin-top:-8px}
+@media(max-width:560px){.ai-hero{padding:14px}.ai-hero h2{font-size:19px}}
 </style>
 </head>
 <body>
@@ -100,6 +116,11 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding
       <button role="tab" data-tab="feat" aria-selected="false">🧩 ຟີເຈີ</button>
       <button role="tab" data-tab="news" aria-selected="false">📣 ປະກາດ</button>
       <button role="tab" data-tab="raw" aria-selected="false">🗄 ຖານຂໍ້ມູນ</button>
+      <button role="tab" data-tab="help" aria-selected="false">📘 ວິທີໃຊ້</button>
+      <button role="tab" data-tab="command" aria-selected="false">🧠 Command Center</button>
+      <button role="tab" data-tab="ai" aria-selected="false">🤖 AI Copilot</button>
+      <button role="tab" data-tab="backup" aria-selected="false">💾 Backup</button>
+      <button role="tab" data-tab="diagnostics" aria-selected="false">🛠 System</button>
       <button role="tab" data-tab="setup" aria-selected="false">⚙️ ຕັ້ງຄ່າ</button>
     </nav>
   </header>
@@ -166,13 +187,14 @@ $("#btn-google").onclick = async () => {
 $("#btn-out").onclick = () => signOut(auth);
 /* ===== Tabs ===== */
 let currentTab = "overview";
-const tabs = { overview: vOverview, visitors: vVisitors, users: vUsers, vocab: vVocab, read: vRead, dialog: vDialog, pics: vPics, cats: vCats, fix: vFix, feat: vFeat, news: vNews, raw: vRaw, setup: vSetup };
+const tabs = { help: vHelp, overview: vOverview, visitors: vVisitors, users: vUsers, vocab: vVocab, read: vRead, dialog: vDialog, pics: vPics, cats: vCats, fix: vFix, feat: vFeat, news: vNews, raw: vRaw, command: vCommand, ai: vAI, backup: vBackup, diagnostics: vDiagnostics, setup: vSetup };
+view.addEventListener("click", (e) => { const b = e.target.closest("[data-go]"); if (b) go(b.dataset.go, b.dataset.then); });
 $("#tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) go(b.dataset.tab); });
-function go(t) {
+function go(t, then) {
   currentTab = t;
   document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
   view.innerHTML = '<p class="msg info">ກຳລັງໂຫຼດ…</p>';
-  Promise.resolve(tabs[t]()).catch((e) => { view.innerHTML = '<div class="msg err"></div>'; $(".msg", view).textContent = errText(e); });
+  Promise.resolve(tabs[t]()).then(() => { if (then) { const e = $(then); if (e) e.click(); } }).catch((e) => { view.innerHTML = '<div class="msg err"></div>'; $(".msg", view).textContent = errText(e); });
   scrollTo(0, 0);
 }
 
@@ -208,6 +230,13 @@ async function vOverview() {
   try { const c = await getCountFromServer(query(collection(db, "users"), where("createdAt", ">=", Timestamp.fromDate(new Date(Date.now() - 7 * 864e5))))); newU = c.data().count; } catch (_) {}
   view.innerHTML = `
     <h2>ພາບລວມການໃຊ້ງານ</h2>
+    <div class="card"><h3>⚡ ເພີ່ມດ່ວນ</h3><div class="actions">
+      <button class="btn" data-go="vocab" data-then="#v-add">＋ ຄຳສັບ</button>
+      <button class="btn" data-go="read" data-then="#d-add">＋ ປະໂຫຍກພາກອ່ານ</button>
+      <button class="btn" data-go="pics" data-then="#p-add">＋ ຮູບພາບ</button>
+      <button class="btn" data-go="news">＋ ປະກາດ</button>
+      <button class="btn sec" data-go="fix">✏️ ແກ້ຄຳຜິດ</button>
+      <button class="btn sec" data-go="help">📘 ວິທີໃຊ້</button></div></div>
     <div class="grid">
       <div class="stat"><div class="n">${uc.data().count}</div><div class="l">ຜູ້ໃຊ້ທີ່ມີບັນຊີ</div></div>
       <div class="stat"><div class="n">${newU}</div><div class="l">ຜູ້ໃຊ້ໃໝ່ 7 ວັນ</div></div>
@@ -854,12 +883,91 @@ async function vVisitors() {
   draw(); ["input", "change"].forEach((ev) => { $("#vi-q").addEventListener(ev, draw); $("#vi-c").addEventListener(ev, draw); $("#vi-g").addEventListener(ev, draw); });
 }
 
+
+/* ===== SUPER ADMIN: Command Center / AI / Backup / Diagnostics ===== */
+const ADMIN_COLLECTIONS = ["users", "stats", "activity", "visitors", "config", "pics"];
+function localAudit(action, detail="") {
+  try {
+    const key="laorus_admin_audit_v1", rows=JSON.parse(localStorage.getItem(key)||"[]");
+    rows.unshift({at:new Date().toISOString(),email:me?.email||"unknown",action,detail:String(detail).slice(0,240)});
+    localStorage.setItem(key,JSON.stringify(rows.slice(0,250)));
+  } catch (_) {}
+}
+function downloadJSON(name, data) {
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"});
+  const url=URL.createObjectURL(blob), a=document.createElement("a"); a.href=url; a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function vCommand() {
+  const [u,v,c,p]=await Promise.all([
+    getCountFromServer(collection(db,"users")), getCountFromServer(collection(db,"visitors")),
+    getCountFromServer(collection(db,"config")), getCountFromServer(collection(db,"pics"))
+  ]);
+  const [base,con,pics]=await Promise.all([loadBase(),loadCon(),loadPB()]);
+  view.innerHTML=`<h2>🧠 LaoRus Super Command Center</h2>
+    <p class="msg info">ສູນຄວບຄຸມລວມ: ເຂົ້າເຖິງເຄື່ອງມືສຳຄັນ, ກວດສະຖານະ ແລະຈັດການຂໍ້ມູນ. ຄຳສັ່ງທີ່ປ່ຽນຂໍ້ມູນຈະມີການຢືນຢັນກ່ອນ.</p>
+    <div class="kpi"><div class="stat"><div class="n">${u.data().count}</div><div class="l">ຜູ້ໃຊ້</div></div><div class="stat"><div class="n">${v.data().count}</div><div class="l">Visitor records</div></div><div class="stat"><div class="n">${base.rows.length}</div><div class="l">ຄຳສັບຖານຫຼັກ</div></div><div class="stat"><div class="n">${pics.length}</div><div class="l">ຮູບພາບຖານຫຼັກ</div></div><div class="stat"><div class="n">${Object.keys(con.readOv||{}).length+Object.keys(con.dlgOv||{}).length}</div><div class="l">Content overrides</div></div><div class="stat"><div class="n">${c.data().count}</div><div class="l">Config documents</div></div></div>
+    <h3 style="margin-top:18px">⚡ ເຄື່ອງມືດ່ວນ</h3><div class="command-grid">
+      ${[["overview","📊 Analytics","ສະຖິຕິ ແລະການໃຊ້ງານ"],["users","👥 User Manager","ຄົ້ນຫາ ແລະຈັດການຜູ້ໃຊ້"],["vocab","📚 Vocabulary Studio","ຄຳສັບ, ຄຳອ່ານ ແລະຄວາມໝາຍ"],["read","📖 Learning Content","ພາກອ່ານ ແລະບົດຮຽນ"],["pics","🖼 Media Library","ຮູບພາບສຳລັບການຮຽນ"],["news","📣 Announcements","ຈັດການປະກາດ"],["ai","🤖 AI Lab","ກວດແກ້ ແລະວິເຄາະຜ່ານ AI"],["backup","💾 Backup Center","ສົ່ງອອກຂໍ້ມູນ"],["diagnostics","🛠 Diagnostics","ກວດສຸຂະພາບລະບົບ"],["setup","🔐 Security & Setup","ກວດກົດ Firebase"]].map(([id,t,d])=>`<div class="command-card"><h3>${t}</h3><p class="sub">${d}</p><button class="btn sec sm" data-go="${id}">ເປີດ →</button></div>`).join("")}</div>
+    <div class="card"><h3>🧾 Local Admin Activity</h3><p class="sub">ບັນທຶກໃນ browser ນີ້ເທົ່ານັ້ນ, ບໍ່ແມ່ນ server audit log.</p><div id="audit-log"></div><button class="btn sec sm" id="audit-clear">ລ້າງປະຫວັດໃນ browser</button></div>`;
+  const rows=JSON.parse(localStorage.getItem("laorus_admin_audit_v1")||"[]");
+  $("#audit-log").innerHTML=rows.slice(0,12).map(x=>`<div class="item"><div class="t"><b>${esc(x.action)}</b><div class="sub">${esc(x.at)} · ${esc(x.detail)}</div></div></div>`).join("")||"<p class='sub'>ຍັງບໍ່ມີກິດຈະກຳທີ່ບັນທຶກ</p>";
+  $("#audit-clear").onclick=()=>{if(confirm("ລ້າງປະຫວັດກິດຈະກຳທ້ອງຖິ່ນ?")){localStorage.removeItem("laorus_admin_audit_v1");vCommand();}};
+}
+async function vAI() {
+  view.innerHTML=`<div class="ai-hero"><div><span class="pill ok">Firebase Admin verification · secure server endpoint</span><h2>🤖 LaoRus AI Copilot</h2><p>ອະທິບາຍວຽກດ້ວຍພາສາທຳມະຊາດ ຫຼືເລືອກວຽກພາສາ/ວິເຄາະເພື່ອໃຫ້ AI ຊ່ວຍຄິດ ແລະສະເໜີຂັ້ນຕອນ.</p></div><div class="ai-mark" aria-hidden="true">LR</div></div>
+    <div class="card"><div class="actions"><a class="btn sec sm" href="/" target="_blank" rel="noopener">ເປີດ LaoRus AI ສຳລັບຜູ້ຮຽນ</a> <span class="pill ok">POST /api/ai</span><span class="pill">ຢືນຢັນ Firebase session ຝັ່ງ server</span><span class="pill warn">AI ບໍ່ແກ້ Firestore ເອງ</span></div><p class="ai-note">AI ເຫັນສະເພາະຂໍ້ຄວາມທີ່ທ່ານສົ່ງ. ເມື່ອຕັ້ງ Gemini key, ຄຳຂໍຈະຖືກສົ່ງໃຫ້ Google ແລະໃຊ້ quota/ອາດມີຄ່າບໍລິການຕາມບັນຊີ Google; Google ປະມວນຜົນຕາມເງື່ອນໄຂຂອງຕົນ. ຖ້າບໍ່ມີ key ຈະໃຊ້ Manus project credits. ຢ່າໃສ່ password, token, ຂໍ້ມູນສ່ວນຕົວ ຫຼື secret. ຜົນທຸກຢ່າງແມ່ນຂໍ້ສະເໜີໃຫ້ກວດກ່ອນນຳໃຊ້.</p></div>
+    <div class="card"><label for="ai-task">ເລືອກວຽກ</label><select id="ai-task"><option value="assistant">AI Copilot — ຊ່ວຍວາງແຜນ ແລະຊີ້ສ່ວນທີ່ຄວນໄປ</option><option value="proofread">ກວດຄຳສັບ / ຄຳອ່ານ / ຄວາມໝາຍ</option><option value="grammar">ກວດໄວຍາກອນລັດເຊຍ</option><option value="translate">ກວດຄຳແປລັດເຊຍ–ລາວ</option><option value="lesson">ສ້າງແຜນບົດຮຽນ</option><option value="analyze">ວິເຄາະເນື້ອຫາ/ຂໍ້ມູນທີ່ເລືອກ</option></select>
+    <div class="ai-examples"><button type="button" data-ai-task="assistant" data-ai-example="ຂ້ອຍຕ້ອງການຈັດການຄຳສັບໃໝ່. ຊ່ວຍບອກຂັ້ນຕອນ ແລະຈຸດທີ່ຄວນກວດກ່ອນບັນທຶກ">ຊ່ວຍວາງແຜນວຽກ</button><button type="button" data-ai-task="translate" data-ai-example="пожалуйста | ກະລຸນາ | pozhaluysta | ກວດວ່າຄຳແປ ແລະຄຳອ່ານນີ້ຖືກຕ້ອງ ແລະທຳມະຊາດບໍ?">ກວດຄຳແປ</button><button type="button" data-ai-task="analyze" data-ai-example="ກວດຫາຈຸດຊ້ຳ ຫຼືຂໍ້ມູນຂາດໃນລາຍການຕໍ່ໄປນີ້: [ວາງຂໍ້ມູນທີ່ບໍ່ມີຂໍ້ມູນສ່ວນຕົວ]">ຊອກຫາບັນຫາໃນຂໍ້ມູນ</button></div>
+    <label for="ai-input">ຂໍ້ຄວາມ/ຄຳສັ່ງ</label><textarea id="ai-input" maxlength="12000" placeholder="ຕົວຢ່າງ: ກວດຄຳສັບຕໍ່ໄປນີ້ ແລະສະເໜີຄຳອ່ານລາວ, ຄວາມໝາຍ ແລະຈຸດທີ່ບໍ່ແນ່ໃຈ…"></textarea><div id="ai-count" class="ai-count">0 / 12,000</div>
+    <div class="actions"><button class="btn" id="ai-run">▶ ຂໍຄຳແນະນຳຈາກ AI</button><button class="btn sec" id="ai-copy">ຄັດລອກຜົນ</button><button class="btn sec" id="ai-clear">ລ້າງຟອມ</button></div><div id="ai-msg" class="msg" hidden></div><pre id="ai-output" class="console" aria-live="polite">ຄຳແນະນຳຈະສະແດງຢູ່ນີ້…</pre></div>`;
+  const input=$("#ai-input"), count=$("#ai-count");
+  const updateCount=()=>{count.textContent=`${input.value.length.toLocaleString("en-US")} / 12,000`;};
+  input.addEventListener("input",updateCount);
+  document.querySelectorAll("[data-ai-example]").forEach((button)=>button.addEventListener("click",()=>{ $("#ai-task").value=button.dataset.aiTask; input.value=button.dataset.aiExample; updateCount(); input.focus(); }));
+  $("#ai-run").onclick=(ev)=>busy(ev.target,async()=>{const m=$("#ai-msg"),out=$("#ai-output"),text=input.value.trim();try{if(!text)throw new Error("ກະລຸນາພິມຄຳສັ່ງ ຫຼືຂໍ້ຄວາມກ່ອນ");if(!me)throw new Error("ບໍ່ພົບ Admin session; ກະລຸນາເຂົ້າລະບົບໃໝ່");if(!me.emailVerified)throw new Error("ອີເມວຕ້ອງຢືນຢັນແລ້ວກ່ອນໃຊ້ AI");out.textContent="ກຳລັງຄິດ…";const token=await me.getIdToken();const r=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({task:$("#ai-task").value,input:text})});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||("AI backend HTTP "+r.status));if(typeof j.result!=="string"||!j.result.trim())throw new Error("AI ບໍ່ສົ່ງຜົນທີ່ໃຊ້ໄດ້");out.textContent=j.result;note(m,"AI ສົ່ງຄຳແນະນຳແລ້ວ — ກວດຜົນກ່ອນນຳໃຊ້","ok");localAudit("AI suggestion",$("#ai-task").value);}catch(e){out.textContent="ຄຳຂໍບໍ່ສຳເລັດ — ຂໍ້ຄວາມທີ່ພິມຍັງຄົງຢູ່ ແລະສາມາດລອງໃໝ່ໄດ້.";note(m,errText(e),"err");}});
+  $("#ai-copy").onclick=()=>{const text=$("#ai-output").textContent;if(!navigator.clipboard?.writeText){note($("#ai-msg"),"Browser ນີ້ບໍ່ຮອງຮັບການຄັດລອກ","err");return;}navigator.clipboard.writeText(text).then(()=>note($("#ai-msg"),"ຄັດລອກແລ້ວ","ok")).catch(()=>note($("#ai-msg"),"ຄັດລອກບໍ່ສຳເລັດ","err"));};
+  $("#ai-clear").onclick=()=>{input.value="";updateCount();$("#ai-output").textContent="ຄຳແນະນຳຈະສະແດງຢູ່ນີ້…";note($("#ai-msg"),"");input.focus();};
+}
+async function vBackup() {
+  view.innerHTML=`<h2>💾 Backup & Export Center</h2><p class="msg warn">ໄຟລ໌ backup ອາດມີຂໍ້ມູນສ່ວນຕົວຜູ້ໃຊ້. ເກັບໄວ້ໃນບ່ອນປອດໄພ ແລະຢ່າແບ່ງປັນສາທາລະນະ.</p><div class="card"><h3>ເລືອກຂໍ້ມູນທີ່ຈະສຳຮອງ</h3>${ADMIN_COLLECTIONS.map(c=>`<label style="display:flex;align-items:center;gap:8px;margin:9px 0"><input type="checkbox" class="bk-col" value="${c}" checked style="width:auto;margin:0"> ${c}</label>`).join("")}<label style="display:flex;align-items:center;gap:8px;margin:9px 0"><input type="checkbox" id="bk-static" checked style="width:auto;margin:0"> ລວມ JSON ຖານຫຼັກ 3 ໄຟລ໌</label><button class="btn" id="bk-export">⬇ ສ້າງ Backup JSON</button><div id="bk-msg" class="msg" hidden></div></div><div class="card"><h3>Backup ປອດໄພ</h3><ul><li>ເຮັດ backup ກ່ອນປ່ຽນ Rules ຫຼືຂໍ້ມູນຈຳນວນຫຼາຍ.</li><li>ການສົ່ງອອກນີ້ອ່ານ Firestore ແລະສ້າງໄຟລ໌ JSON ໃນອຸປະກອນ.</li><li>ຍັງບໍ່ມີການ Restore ອັດຕະໂນມັດ ເພື່ອຫຼີກລ້ຽງການຂຽນທັບຂໍ້ມູນຜິດພາດ.</li></ul></div>`;
+  $("#bk-export").onclick=(ev)=>busy(ev.target,async()=>{const m=$("#bk-msg");try{const selected=[...document.querySelectorAll(".bk-col:checked")].map(x=>x.value),data={format:"laorus-admin-backup",version:1,createdAt:new Date().toISOString(),projectId:firebaseConfig.projectId,collections:{}};for(const name of selected){const snap=await getDocs(collection(db,name));data.collections[name]=snap.docs.map(d=>({id:d.id,data:d.data()}));}if($("#bk-static").checked){for(const name of ["vocab-base.json","content-base.json","pics-base.json"]){const r=await fetch(name,{cache:"no-cache"});if(!r.ok)throw new Error("ອ່ານ "+name+" ບໍ່ໄດ້");data.staticFiles=data.staticFiles||{};data.staticFiles[name]=await r.json();}}downloadJSON("laorus-backup-"+dayStr(new Date())+".json",data);localAudit("Backup export",selected.join(", "));note(m,"ສ້າງ backup ສຳເລັດ","ok");}catch(e){note(m,errText(e),"err");}});
+}
+async function vDiagnostics() {
+  view.innerHTML=`<h2>🛠 System Diagnostics</h2><p class="msg info">ກວດກາການເຊື່ອມຕໍ່ Firebase, ສິດ Admin ແລະໄຟລ໌ຖານຂໍ້ມູນທີ່ Admin ຕ້ອງໃຊ້.</p><div class="card"><div class="actions"><button class="btn" id="diag-run">▶ ເລີ່ມກວດລະບົບ</button><span class="pill">Project: ${esc(firebaseConfig.projectId)}</span></div><div id="diag-results" class="console" style="margin-top:12px">ພ້ອມກວດສອບ…</div></div><div class="card"><h3>Admin Session</h3><p>ອີເມວ: <b>${esc(me?.email||"—")}</b></p><p>UID: <code>${esc(me?.uid||"—")}</code></p><p>ຢືນຢັນອີເມວ: ${me?.emailVerified?'<span class="pill ok">Verified</span>':'<span class="pill bad">Not verified</span>'}</p></div>`;
+  $("#diag-run").onclick=(ev)=>busy(ev.target,async()=>{
+    const out=$("#diag-results"),lines=[];
+    const test=async(label,fn)=>{try{const v=await fn();lines.push("[PASS] "+label+(v?" — "+v:""));}catch(e){lines.push("[FAIL] "+label+" — "+(e.code||e.message||e));}};
+    out.textContent="ກຳລັງກວດລະບົບ…";
+    await test("Admin email allowlist",async()=>{if(!me||!ADMIN_EMAILS.includes((me.email||"").toLowerCase()))throw new Error("not authorized");return "authorized";});
+    await test("Firestore users read",async()=>String((await getCountFromServer(collection(db,"users"))).data().count)+" docs");
+    await test("Firestore config read",async()=>String((await getCountFromServer(collection(db,"config"))).data().count)+" docs");
+    for(const f of ["vocab-base.json","content-base.json","pics-base.json"]){await test(f,async()=>{const r=await fetch(f,{cache:"no-cache"});if(!r.ok)throw new Error("HTTP "+r.status);await r.json();return "valid JSON";});}
+    await test("LaoRus server health",async()=>{const r=await fetch("/_app/health",{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);return "available";});
+    await test("AI endpoint denies missing Firebase token",async()=>{const r=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"assistant",input:"health check"})});if(r.status!==401)throw new Error("expected 401, got "+r.status);return "expected HTTP 401; no AI call made";});
+    out.textContent=lines.join("\n");localAudit("System diagnostics",lines.filter(x=>x.startsWith("[FAIL]")).length+" failures");
+  });
+}
+
+function vHelp() {
+  const step = (t, items) => `<div class="card"><h3>${t}</h3><ol style="padding-left:20px;margin:0">${items.map((i) => `<li style="margin:4px 0">${i}</li>`).join("")}</ol></div>`;
+  view.innerHTML = `<h2>ວິທີໃຊ້ແອດມິນ</h2>
+    <p class="msg info">ທຸກຢ່າງທີ່ແກ້/ເພີ່ມ ຈະຂຶ້ນໃນແອັບເມື່ອຜູ້ໃຊ້ເປີດແອັບຄັ້ງຕໍ່ໄປ. ຖ້າກົດບັນທຶກແລ້ວຂຶ້ນ "permission-denied" ໃຫ້ໄປແຖບ ຕັ້ງຄ່າ ແລ້ວວາງ Rules ໃໝ່.</p>
+    ${step("📚 ເພີ່ມຄຳສັບ", ["ແຖບ <b>ຄຳສັບ</b> → ກົດ <b>＋ ເພີ່ມຄຳໃໝ່</b>", "ເລືອກໝວດ ໃສ່ຄຳລັດເຊຍ, ຄຳອ່ານລາວ, ຄວາມໝາຍລາວ (ໃສ່ຕົວຢ່າງປະໂຫຍກໄດ້)", "ກົດ <b>ເພີ່ມ</b>"])}
+    ${step("📖 ເພີ່ມປະໂຫຍກ / ບົດສົນທະນາ", ["ແຖບ <b>ພາກອ່ານ</b> → ກົດ <b>＋ ເພີ່ມໃໝ່</b>", "ໃສ່ປະໂຫຍກລັດເຊຍ, ຄຳອ່ານ, ຄຳແປລາວ", "ຊ່ອງໝວດ: ເລືອກໝວດທີ່ມີ ຫຼື ພິມຊື່ໃໝ່ເພື່ອສ້າງໝວດໃໝ່"])}
+    ${step("🖼 ເພີ່ມຮູບພາບ", ["ແຖບ <b>ຮູບພາບ</b> → ກົດ <b>＋ ເພີ່ມຮູບໃໝ່</b>", "ໃສ່ຄຳລັດເຊຍ, ຄຳອ່ານ, ຄວາມໝາຍ, ເລືອກປະເພດ ແລະ ເລືອກໄຟລ໌ຮູບ (ລະບົບຍ່ອໃຫ້ອັດຕະໂນມັດ)", "ກົດ <b>ບັນທຶກ</b> — ຮູບຈະຂຶ້ນໃນແຖບ ສື່/ຮູບພາບ ຂອງແອັບ"])}
+    ${step("🗂 ຈັດການໝວດ", ["ແຖບ <b>ໝວດໝູ່</b> → ປ່ຽນຊື່ ຫຼື ເຊື່ອງ/ສະແດງໝວດ", "ສ້າງໝວດໃໝ່: ພິມຊື່ໝວດໃໝ່ຕອນເພີ່ມຄຳ ຫຼື ປະໂຫຍກ"])}
+    ${step("✏️ ແກ້ຂໍ້ຄວາມຜິດ", ["ແກ້ຄຳດຽວ: ແຖບ <b>ຄຳສັບ</b>/<b>ພາກອ່ານ</b> → ຄົ້ນຫາ → ແກ້ໄຂ", "ແກ້ທັງແອັບ: ແຖບ <b>ແກ້ຂໍ້ຄວາມ</b> → ໃສ່ຂໍ້ຄວາມຜິດ ແລະ ຂໍ້ຄວາມຖືກ → ເພີ່ມກົດ"])}
+    ${step("👁 ເບິ່ງຜູ້ເຂົ້າຊົມ", ["ແຖບ <b>ຜູ້ເຂົ້າຊົມ</b>: ທຸກຄົນທີ່ເປີດເວັບ ພ້ອມປະເທດ, ອຸປະກອນ, ເວລາເຂົ້າ", "ແຖບ <b>ຜູ້ໃຊ້</b>: ສະເພາະຄົນທີ່ສະໝັກບັນຊີ (ແກ້ຊື່/ເບີໂທ/ສົ່ງອອກ CSV)"])}
+    ${step("📣 ປະກາດ ແລະ 🧩 ຟີເຈີ", ["ແຖບ <b>ປະກາດ</b>: ຂຽນຂໍ້ຄວາມສະແດງໃຫ້ຜູ້ໃຊ້ທຸກຄົນເຫັນ", "ແຖບ <b>ຟີເຈີ</b>: ຕິກເພື່ອເຊື່ອງປຸ່ມ/ຟັງຊັນໃນແອັບ"])}`;
+}
 /* ===== ເລີ່ມຕົ້ນ ===== */
 let me = null;
 onAuthStateChanged(auth, (u) => {
   me = u;
   if (u && u.emailVerified && ADMIN_EMAILS.includes((u.email || "").toLowerCase())) {
     $("#login").hidden = true; $("#app").hidden = false; $("#who").textContent = u.email;
+    localAudit("Admin login",u.email||"");
     go(currentTab);
   } else {
     $("#app").hidden = true; $("#login").hidden = false;
