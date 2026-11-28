@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="LaoRus Admin">
+  <rect width="512" height="512" rx="112" fill="#1f2d86"/>
+  <path d="M113 106h57v242h119v58H113z" fill="#fff"/>
+  <path d="M281 106h58l65 105 65-105h58L433 257v149h-58V257z" fill="#a8c7ff" transform="translate(-32 0)"/>
+  <circle cx="398" cy="374" r="20" fill="#4ade80"/>
+</svg>
